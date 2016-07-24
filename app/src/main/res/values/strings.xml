@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+
+    <!-- TMDB strings -->
+    <string name="tmdb_api_url" translatable="false">http://api.themoviedb.org/3/movie/</string>
+    <string name="tmdb_api_key" translatable="false">\?api_key=5af71ded7a9f8a24e1f7c799981ec273</string>
+    <string name="tmdb_poster_base_url" translatable="false">http://image.tmdb.org/t/p/</string>
+    <string name="movie_intent_tag">movie_data</string>
+    <string name="synopsis">SYNOPSIS</string>
+    <string name="user_rating">USER RATING</string>
+    <string name="release_date">RELEASE DATE</string>
+    <string name="sort">Sort</string>
+    <string name="popular">POPULAR</string>
+    <string name="top_rated">TOP RATED</string>
+    <string name="popular_low">popular</string>
+    <string name="top_rated_low">top_rated</string>
+    <string name="shared_prefs_name">shared_prefs</string>
+    <string name="sort_by_pref">sort_by</string>
+</resources>
