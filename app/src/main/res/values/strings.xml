@@ -16,4 +16,6 @@
     <string name="top_rated_low">top_rated</string>
     <string name="shared_prefs_name">shared_prefs</string>
     <string name="sort_by_pref">sort_by</string>
+    <string name="favorites">FAVORITES</string>
+    <string name="favorites_low">favorites</string>
 </resources>

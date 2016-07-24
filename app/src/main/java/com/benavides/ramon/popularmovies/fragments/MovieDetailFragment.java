@@ -11,6 +11,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,7 @@ import butterknife.ButterKnife;
  */
 public class MovieDetailFragment extends Fragment {
 
+    private static final String MOVIE_PARAM = "movie";
 
     @BindView(R.id.collapsing_toolbar_layout)
     CollapsingToolbarLayout collapsingToolbarLayout;
@@ -51,6 +53,7 @@ public class MovieDetailFragment extends Fragment {
     @Nullable
     @BindView(R.id.message_info_container)
     RelativeLayout messageInfoContainer;
+    private Movie mMovie;
 
     @Nullable
     @Override
@@ -85,16 +88,31 @@ public class MovieDetailFragment extends Fragment {
             }
         });
 
-
-        //Getting movie object from intent to display info
-        Intent mainActivityIntent = getActivity().getIntent();
-        if (mainActivityIntent != null && mainActivityIntent.hasExtra(getActivity().getString(R.string.movie_intent_tag))) {
-            Movie movie = (Movie) mainActivityIntent.getParcelableExtra(getActivity().getString(R.string.movie_intent_tag));
-            updateContent(movie);
+//        Restoring instance state
+        if(savedInstanceState != null){
+            mMovie = savedInstanceState.getParcelable(MOVIE_PARAM);
+            setVisibilityLayoutItems(true);
+            updateContent(mMovie);
+        }else{
+            //Getting mMovie object from intent to display info
+            Intent mainActivityIntent = getActivity().getIntent();
+            if (mainActivityIntent != null && mainActivityIntent.hasExtra(getActivity().getString(R.string.movie_intent_tag))) {
+                mMovie = (Movie) mainActivityIntent.getParcelableExtra(getActivity().getString(R.string.movie_intent_tag));
+                if(mMovie == null)
+                    Log.d("RBM","mMovie is null");
+                else
+                    Log.d("RBM","mMovie isn't null");
+                updateContent(mMovie);
+            }
         }
-
-
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(MOVIE_PARAM, mMovie);
+        super.onSaveInstanceState(outState);
+    }
+
 
     //    Managing configuration changes to show or not toolbar navigation button
     @Override
@@ -108,6 +126,7 @@ public class MovieDetailFragment extends Fragment {
 
     //Populate content
     public void updateContent(Movie movie) {
+        mMovie = movie;
         collapsingToolbarLayout.setTitle(movie.getOriginalTitle());
 
         Picasso.with(getActivity())

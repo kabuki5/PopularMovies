@@ -21,16 +21,15 @@ import java.util.ArrayList;
 /**
  * Class to retrieve data from the movie data base API in background thread.
  */
-public class TmdbApiTask extends AsyncTask<String, Void, ArrayList<Movie>> {
+public class FecthMoviesTask extends AsyncTask<String, Void, ArrayList<Movie>> {
 
     private TmdbApiTaskListener mCallback;
     private Context mContext;
 
-    public TmdbApiTask(TmdbApiTaskListener callback, Context context){
+    public FecthMoviesTask(TmdbApiTaskListener callback, Context context){
         this.mCallback = callback;
         this.mContext = context;
     }
-
 
     /**
      * Method to parse the movie data base json response
