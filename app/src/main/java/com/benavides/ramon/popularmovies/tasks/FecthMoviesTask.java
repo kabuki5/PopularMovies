@@ -1,4 +1,4 @@
-package com.benavides.ramon.popularmovies.network;
+package com.benavides.ramon.popularmovies.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
