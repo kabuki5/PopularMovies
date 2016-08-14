@@ -7,4 +7,5 @@
 
     <dimen name="movie_item_height">260dp</dimen>
     <dimen name="detail_img_height">200dp</dimen>
+    <dimen name="detail_card_padding">10dp</dimen>
 </resources>

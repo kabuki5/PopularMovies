@@ -26,7 +26,9 @@
 
         <provider
             android:name=".database.MoviesProvider"
-            android:authorities="com.benavides.ramon.popularmovies" />
+            android:authorities="com.benavides.ramon.popularmovies"
+            android:enabled="true"
+            android:exported="true"/>
     </application>
 
 </manifest>

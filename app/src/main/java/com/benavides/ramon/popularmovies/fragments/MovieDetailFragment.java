@@ -1,5 +1,6 @@
 package com.benavides.ramon.popularmovies.fragments;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -19,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.benavides.ramon.popularmovies.MainActivity;
+import com.benavides.ramon.popularmovies.MovieDetailActivity;
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.data.Movie;
 import com.benavides.ramon.popularmovies.utils.Utils;
@@ -35,6 +38,7 @@ import butterknife.ButterKnife;
 public class MovieDetailFragment extends Fragment {
 
     private static final String MOVIE_PARAM = "movie";
+    private static final String TWO_PANE = "two_pane";
 
     @BindView(R.id.collapsing_toolbar_layout)
     CollapsingToolbarLayout collapsingToolbarLayout;
@@ -50,10 +54,17 @@ public class MovieDetailFragment extends Fragment {
     AppBarLayout appBarLayout;
     @BindView(R.id.scrollView)
     NestedScrollView scrollView;
-    @Nullable
-    @BindView(R.id.message_info_container)
-    RelativeLayout messageInfoContainer;
     private Movie mMovie;
+
+    public static MovieDetailFragment newInstance(Movie movie, boolean twoPane) {
+
+        Bundle args = new Bundle();
+        args.putParcelable(MOVIE_PARAM, movie);
+        args.putBoolean(TWO_PANE, twoPane);
+        MovieDetailFragment fragment = new MovieDetailFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Nullable
     @Override
@@ -70,17 +81,24 @@ public class MovieDetailFragment extends Fragment {
         //Setting up toolbar
         Toolbar toolbar = ButterKnife.findById(view, R.id.toolbar);
 
-        //Managing device type and orientation
-        if (!Utils.isTablet(getActivity()) || (Utils.isTablet(getActivity()) && getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)) {
-            ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-            ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-            if (actionBar != null)
-                actionBar.setDisplayHomeAsUpEnabled(true);
-        } else {//Setting invisible layout items to show message in case the device is a tablet with landscape orientation
-            setVisibilityLayoutItems(false);
+
+        //Managing action bar navigation back button state
+        if(getActivity() instanceof MovieDetailActivity){
+            ActionBar actionBar = ((MovieDetailActivity)getActivity()).getSupportActionBar();
+            if(actionBar == null)
+                ((MovieDetailActivity)getActivity()).setSupportActionBar(toolbar);
+            actionBar = ((MovieDetailActivity)getActivity()).getSupportActionBar();
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }else{
+            ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+            if(actionBar == null)
+                ((MovieDetailActivity)getActivity()).setSupportActionBar(toolbar);
+            actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+            actionBar.setDisplayHomeAsUpEnabled(false);
+
         }
 
-//        Managing toolbar back button behavior
+        //        Managing toolbar back button behavior
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,20 +106,19 @@ public class MovieDetailFragment extends Fragment {
             }
         });
 
+
 //        Restoring instance state
         if(savedInstanceState != null){
             mMovie = savedInstanceState.getParcelable(MOVIE_PARAM);
-            setVisibilityLayoutItems(true);
             updateContent(mMovie);
         }else{
-            //Getting mMovie object from intent to display info
-            Intent mainActivityIntent = getActivity().getIntent();
-            if (mainActivityIntent != null && mainActivityIntent.hasExtra(getActivity().getString(R.string.movie_intent_tag))) {
-                mMovie = (Movie) mainActivityIntent.getParcelableExtra(getActivity().getString(R.string.movie_intent_tag));
-                if(mMovie == null)
-                    Log.d("RBM","mMovie is null");
-                else
-                    Log.d("RBM","mMovie isn't null");
+            //Getting mMovie object from intent or arguments bundle to display info
+            Bundle bundle = getArguments();
+            if(bundle!=null && bundle.containsKey(MOVIE_PARAM)){
+                mMovie = bundle.getParcelable(MOVIE_PARAM);
+                updateContent(mMovie);
+            }else if(getActivity().getIntent() != null && getActivity().getIntent().hasExtra(getActivity().getString(R.string.movie_intent_tag))) {
+                mMovie = (Movie) getActivity().getIntent().getParcelableExtra(getActivity().getString(R.string.movie_intent_tag));
                 updateContent(mMovie);
             }
         }
@@ -118,10 +135,7 @@ public class MovieDetailFragment extends Fragment {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
-        if (actionBar != null)
-            actionBar.setDisplayHomeAsUpEnabled(!(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE && Utils.isTablet(getActivity())));
     }
 
     //Populate content
@@ -131,7 +145,7 @@ public class MovieDetailFragment extends Fragment {
 
         Picasso.with(getActivity())
                 .load(movie.getBackdrop())
-                /*.placeholder(R.drawable.sad)*/
+                /*.placeholder(R.drawable.ic_movie)*/
                 /*.error(R.drawable.exclamation)*/
                 .into(backdropImv);
 
@@ -140,18 +154,4 @@ public class MovieDetailFragment extends Fragment {
         releaseDateTev.setText(movie.getReleaseDate());
     }
 
-    public void setVisibilityLayoutItems(boolean visible) {
-        if (visible) {
-            appBarLayout.setVisibility(View.VISIBLE);
-            scrollView.setVisibility(View.VISIBLE);
-            if(messageInfoContainer!=null)
-                messageInfoContainer.setVisibility(View.GONE);
-        } else {
-            appBarLayout.setVisibility(View.GONE);
-            scrollView.setVisibility(View.GONE);
-            if(messageInfoContainer!=null)
-                messageInfoContainer.setVisibility(View.VISIBLE);
-        }
-
-    }
 }

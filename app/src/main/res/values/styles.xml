@@ -30,7 +30,7 @@
     </style>
 
     <style name="AppTheme.DetailCardLayout">
-        <item name="android:padding">@dimen/activity_horizontal_margin</item>
+        <item name="android:padding">@dimen/detail_card_padding</item>
     </style>
 
 </resources>

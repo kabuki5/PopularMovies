@@ -2,7 +2,6 @@ package com.benavides.ramon.popularmovies.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.data.Movie;
@@ -45,6 +44,7 @@ public class FecthMoviesTask extends AsyncTask<String, Void, ArrayList<Movie>> {
         for (int i = 0; i < movies.length(); i++) {
             JSONObject movieObject = movies.getJSONObject(i);
             Movie movie = new Movie();
+            movie.setId(movieObject.getInt("id"));
             movie.setOriginalTitle(movieObject.getString("original_title"));
             movie.setPoster(mContext.getString(R.string.tmdb_poster_base_url)+"w185"+movieObject.getString("poster_path"));
             movie.setBackdrop(mContext.getString(R.string.tmdb_poster_base_url)+"w500"+movieObject.getString("backdrop_path"));
@@ -71,8 +71,6 @@ public class FecthMoviesTask extends AsyncTask<String, Void, ArrayList<Movie>> {
                 //
                 return null;
             }
-
-            Log.v("RBM",mContext.getString(R.string.tmdb_api_url)+ movieChoice + mContext.getString(R.string.tmdb_api_key));
 
             //Composing url to request data
             URL url = new URL(mContext.getString(R.string.tmdb_api_url)+ movieChoice + mContext.getString(R.string.tmdb_api_key));

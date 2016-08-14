@@ -84,7 +84,6 @@ public class MoviesProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
-
         return resultUri;
     }
 

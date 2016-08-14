@@ -9,6 +9,7 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 
 import com.benavides.ramon.popularmovies.R;
+import com.benavides.ramon.popularmovies.cviews.StateImageView;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
 import com.squareup.picasso.Picasso;
 
@@ -26,16 +27,29 @@ public class MoviesCursorAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return (LayoutInflater.from(mContext).inflate(R.layout.movie_item, parent, false));
+        View view = (LayoutInflater.from(mContext).inflate(R.layout.movie_item, parent, false));
+        ViewHolder viewHolder = new ViewHolder(view);
+        view.setTag(viewHolder);
+        return view;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        ImageView movieImv = (ImageView)view.findViewById(R.id.movie_item_imv);
+        ViewHolder vh = ((ViewHolder) view.getTag());
+        StateImageView movieImv = vh.imageView;
 
         String posterUrl = cursor.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_POSTER);
 
         Picasso.with(mContext).load(posterUrl).placeholder(R.drawable.ic_movie).into(movieImv);
+
+    }
+
+    public static class ViewHolder {
+        public final StateImageView imageView;
+
+        public ViewHolder(View view) {
+            imageView = (StateImageView) view.findViewById(R.id.movie_item_imv);
+        }
 
     }
 }

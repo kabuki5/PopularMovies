@@ -4,14 +4,18 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.benavides.ramon.popularmovies.MainActivity;
 import com.benavides.ramon.popularmovies.MovieDetailActivity;
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.adapters.MoviesCursorAdapter;
@@ -29,7 +34,7 @@ import com.benavides.ramon.popularmovies.data.Movie;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
 import com.benavides.ramon.popularmovies.interfaces.MovieSelectorInterface;
 import com.benavides.ramon.popularmovies.interfaces.TmdbApiTaskListener;
-import com.benavides.ramon.popularmovies.network.FecthMoviesTask;
+import com.benavides.ramon.popularmovies.tasks.FecthMoviesTask;
 import com.benavides.ramon.popularmovies.utils.CursorUtils;
 import com.benavides.ramon.popularmovies.utils.Utils;
 
@@ -173,7 +178,6 @@ public class MoviesFragment extends Fragment implements TmdbApiTaskListener, Ada
                 break;
         }
 
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -202,7 +206,6 @@ public class MoviesFragment extends Fragment implements TmdbApiTaskListener, Ada
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Log.d("RBM", "onItemClick");
         Cursor cursor = ((Cursor) parent.getItemAtPosition(position));
 
         if (cursor != null) {
@@ -211,18 +214,13 @@ public class MoviesFragment extends Fragment implements TmdbApiTaskListener, Ada
             */
             Movie movie = CursorUtils.getMovieFromCursor(cursor);
 
-            //If it's tablet at landscape orientation
-            if (Utils.isTablet(getActivity()) && getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                if (mCallback != null) {
-                    mCallback.onMovieSelected(movie);
-                }
-            } else {        //If it's mobile or tablet at portrait
-                Intent detailIntent = new Intent(getActivity(), MovieDetailActivity.class);
-                detailIntent.putExtra(getString(R.string.movie_intent_tag), movie);
-                startActivity(detailIntent);
+            if (mCallback != null) {
+                mCallback.onMovieSelected(movie);
             }
-
         }
+//        ContentValues contentValues = new ContentValues();
+//        DatabaseUtils.cursorRowToContentValues(cursor,contentValues);
+//        getActivity().getContentResolver().insert(MoviesContract.MovieEntry.buildMoviesData(),contentValues);
     }
 
 

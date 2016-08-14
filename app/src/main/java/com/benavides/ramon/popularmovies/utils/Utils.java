@@ -44,12 +44,12 @@ public class Utils {
         return sb.toString();
     }
 
-    public static boolean isTablet(Context context) {
+  /*  public static boolean isTablet(Context context) {
         return (context.getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK)
                 >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
-
+*/
     public static String readStringPreference(Context context, String preferenceToRead) {
         SharedPreferences preferences = context.getSharedPreferences(context.getString(R.string.shared_prefs_name), Context.MODE_PRIVATE);
         String preference = preferences.getString(preferenceToRead, context.getString(R.string.popular_low));

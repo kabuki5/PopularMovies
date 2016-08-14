@@ -11,14 +11,27 @@
       android:id="@+id/movies_frg"
       android:name="com.benavides.ramon.popularmovies.fragments.MoviesFragment"
       class="com.benavides.ramon.popularmovies.fragments.MoviesFragment"
-      android:layout_width="match_parent"
+      android:layout_width="0dp"
       android:layout_height="match_parent"/>
 
-    <fragment
-        android:layout_weight="1"
-        android:id="@+id/detail_movies_frg"
-        android:name="com.benavides.ramon.popularmovies.fragments.MovieDetailFragment"
-        class="com.benavides.ramon.popularmovies.fragments.MovieDetailFragment"
+  <FrameLayout
+      android:layout_weight="1"
+      android:layout_width="0dp"
+      android:layout_height="match_parent"
+      android:background="@color/colorPrimary">
+
+    <ImageView
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_movie"/>
+
+    <FrameLayout
+        android:id="@+id/detail_frg_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+  </FrameLayout>
+
+
 </LinearLayout>

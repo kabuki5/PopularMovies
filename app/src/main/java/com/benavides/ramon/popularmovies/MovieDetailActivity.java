@@ -1,9 +1,12 @@
 package com.benavides.ramon.popularmovies;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+
+import com.benavides.ramon.popularmovies.data.Movie;
 
 import butterknife.ButterKnife;
 
