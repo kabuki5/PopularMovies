@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -33,8 +35,7 @@ import com.benavides.ramon.popularmovies.adapters.MoviesCursorAdapter;
 import com.benavides.ramon.popularmovies.data.Movie;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
 import com.benavides.ramon.popularmovies.interfaces.MovieSelectorInterface;
-import com.benavides.ramon.popularmovies.interfaces.TmdbApiTaskListener;
-import com.benavides.ramon.popularmovies.tasks.FecthMoviesTask;
+import com.benavides.ramon.popularmovies.service.MoviesService;
 import com.benavides.ramon.popularmovies.utils.CursorUtils;
 import com.benavides.ramon.popularmovies.utils.Utils;
 
@@ -46,7 +47,7 @@ import butterknife.ButterKnife;
 /**
  * Fragment class to show the movies into a grid view
  */
-public class MoviesFragment extends Fragment implements TmdbApiTaskListener, AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class MoviesFragment extends Fragment implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int MOVIES_LOADER = 0;
 
@@ -60,6 +61,7 @@ public class MoviesFragment extends Fragment implements TmdbApiTaskListener, Ada
     private MovieSelectorInterface mCallback;
     private ArrayList<Movie> mMoviesData;
     private MoviesCursorAdapter mAdapter;
+    private MovieDataReceiver mDataReceiver;
 
     @Override
     public void onAttach(Context context) {
@@ -77,6 +79,24 @@ public class MoviesFragment extends Fragment implements TmdbApiTaskListener, Ada
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mDataReceiver = new MovieDataReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MoviesService.MOVIE_DATA_ACTION_INCOMING);
+        intentFilter.addAction(MoviesService.MOVIE_DATA_ACTION_ERROR);
+        getActivity().registerReceiver(mDataReceiver, intentFilter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mDataReceiver != null) {
+            getActivity().unregisterReceiver(mDataReceiver);
+        }
     }
 
     @Nullable
@@ -106,7 +126,7 @@ public class MoviesFragment extends Fragment implements TmdbApiTaskListener, Ada
                 initFavLoader();
             } else {
                 Log.v("RBM", "Calling api task!!");
-                new FecthMoviesTask(this, getActivity()).execute(currentSortTypeSelected);//pass popular/top_rated parameter
+                requestToService(currentSortTypeSelected);//pass popular/top_rated parameter
             }
         }
 //
@@ -154,11 +174,11 @@ public class MoviesFragment extends Fragment implements TmdbApiTaskListener, Ada
 
                         switch (id) {
                             case R.id.popular_dialog_button:
-                                new FecthMoviesTask(MoviesFragment.this, getActivity()).execute(getString(R.string.popular_low));//pass popular/top_rated parameter
+                                requestToService(getString(R.string.popular_low));
                                 selection = getString(R.string.popular_low);
                                 break;
                             case R.id.top_rated_dialog_button:
-                                new FecthMoviesTask(MoviesFragment.this, getActivity()).execute(getString(R.string.top_rated_low));
+                                requestToService(getString(R.string.top_rated_low));
                                 selection = getString(R.string.top_rated_low);
                                 break;
                             case R.id.favorites_dialog_button:
@@ -181,27 +201,15 @@ public class MoviesFragment extends Fragment implements TmdbApiTaskListener, Ada
         return super.onOptionsItemSelected(item);
     }
 
-    //    APIDataTaskListener callback methods
-
-    @Override
-    public void onRequestSuccess(ArrayList<Movie> movies) {
-        /*for (Movie movie : movies) {
-            Log.v(TAG, movie.toString());
-        }*/
-        mMoviesData = movies;
-        updateGridView(movies);
-    }
-
-    @Override
-    public void onRequestError() {
-        //TODO => Manage request API error. Maybe show a dialog with info.
-    }
-
 
     //Gridview methods
 
     private void updateGridView(ArrayList<Movie> movies) {
         mAdapter.swapCursor(CursorUtils.convertMovieArrayListToCursor(movies));
+    }
+
+    private void updateGridView(Cursor movies) {
+        mAdapter.swapCursor(movies);
     }
 
     @Override
@@ -250,10 +258,8 @@ public class MoviesFragment extends Fragment implements TmdbApiTaskListener, Ada
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
 //        Log.d("RBM", "onLoadFinished");
-
-        mAdapter.swapCursor(data);
+        updateGridView(data);
         mMoviesData = CursorUtils.convertMovieCursorToArrayList(data);
-
     }
 
     @Override
@@ -261,4 +267,27 @@ public class MoviesFragment extends Fragment implements TmdbApiTaskListener, Ada
 //        mAdapter.swapCursor(null);
     }
 
+
+    //    service methods
+    private void requestToService(String typeSelection) {
+        Intent intentToService = new Intent(getActivity(), MoviesService.class);
+        intentToService.putExtra(MoviesService.TYPE_PARAM, typeSelection);
+        getActivity().startService(intentToService);
+    }
+
+
+    class MovieDataReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action != null && action.equals(MoviesService.MOVIE_DATA_ACTION_INCOMING)) {
+                ArrayList<Movie> movies = intent.getParcelableArrayListExtra(MoviesService.MOVIES_PARAM);
+                mMoviesData = movies;
+                updateGridView(movies);
+            } else if (action != null && action.equals(MoviesService.MOVIE_DATA_ACTION_ERROR)) {
+                // NO data received
+            }
+        }
+    }
 }

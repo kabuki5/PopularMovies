@@ -29,6 +29,7 @@
             android:authorities="com.benavides.ramon.popularmovies"
             android:enabled="true"
             android:exported="true"/>
+        <service android:name=".service.MoviesService"/>
     </application>
 
 </manifest>
