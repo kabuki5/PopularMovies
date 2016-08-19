@@ -2,10 +2,13 @@ package com.benavides.ramon.popularmovies.service;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.database.Cursor;
 import android.util.Log;
 
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.data.Movie;
+import com.benavides.ramon.popularmovies.database.MoviesContract;
+import com.benavides.ramon.popularmovies.utils.CursorUtils;
 import com.benavides.ramon.popularmovies.utils.Utils;
 
 import org.json.JSONArray;
@@ -58,8 +61,14 @@ public class MoviesService extends IntentService {
                 //Parse Data
                 movies = parseJson(jsonResult);
 
+//              getting correct category to insert movies
+                Cursor cursorCategory = getContentResolver().query(MoviesContract.CategoryEntry.buildCategoryData(),
+                        MoviesContract.CategoryEntry.CATEGORIES_PROJECTION, MoviesContract.CategoryEntry.COLUMN_NAME + "=? ", new String[]{movieChoice}, null);
+
+                //insert data into database
+                getContentResolver().bulkInsert(MoviesContract.MovieEntry.buildMoviesDataWithCategory(CursorUtils.getCategory(cursorCategory)), CursorUtils.prepareToInsertMovies(movies));
+
                 resultIntent.setAction(MOVIE_DATA_ACTION_INCOMING);
-                resultIntent.putParcelableArrayListExtra(MOVIES_PARAM, movies);
                 sendBroadcast(resultIntent);
             }
 
@@ -101,4 +110,8 @@ public class MoviesService extends IntentService {
         return result;
 
     }
+
+
 }
+
+
