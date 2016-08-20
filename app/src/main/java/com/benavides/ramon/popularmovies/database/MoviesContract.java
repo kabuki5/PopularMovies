@@ -43,8 +43,8 @@ public class MoviesContract {
             return CONTENT_URI.buildUpon().build();
         }
 
-        public static Uri buildMoviesDataWithCategory(int category) {
-            return CONTENT_URI.buildUpon().appendPath(Integer.toString(category)).build();
+        public static Uri buildMoviesDataWithCategory(String category) {
+            return CONTENT_URI.buildUpon().appendPath(category).build();
         }
 
         public static String getCategoryFromUri(Uri uri) {

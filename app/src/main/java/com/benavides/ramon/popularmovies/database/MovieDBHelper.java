@@ -6,15 +6,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 /**
- * Created by ramon on 21/7/16.
+ * Database helper class. Defines tables creation and upgrades.
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
 
     public static final String DATABASE_NAME = "movies.db";
-
-
 
     public MovieDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -40,7 +38,9 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MoviesContract.MovieCategoryEntry._ID + " INTEGER PRIMARY KEY, " +
                 MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " TEXT NOT NULL, " +
                 MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " TEXT NOT NULL, " +
-                "UNIQUE ("+  MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID+" , "+  MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID +" ));";
+                "UNIQUE ("+  MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID+" , "+  MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID +" )," +
+                "FOREIGN KEY ("+ MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID+") REFERENCES "+ MoviesContract.CategoryEntry.TABLE_NAME +" ("+ MoviesContract.CategoryEntry._ID+"), "+
+                "FOREIGN KEY ("+ MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID+") REFERENCES "+ MoviesContract.MovieCategoryEntry.TABLE_NAME +" ("+ MoviesContract.MovieEntry._ID+"));";
 
         db.execSQL(SQL_CREATE_MOVIES_TABLE);
         db.execSQL(SQL_CREATE_CATEGORIES_TABLE);

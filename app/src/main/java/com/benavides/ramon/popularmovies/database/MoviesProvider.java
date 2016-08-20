@@ -7,12 +7,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.benavides.ramon.popularmovies.R;
-import com.benavides.ramon.popularmovies.data.Category;
-import com.benavides.ramon.popularmovies.data.Movie;
-import com.benavides.ramon.popularmovies.utils.CursorUtils;
 
 
 /**
@@ -34,7 +30,7 @@ public class MoviesProvider extends ContentProvider {
 
         uriMatcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIES);
         uriMatcher.addURI(authority, MoviesContract.PATH_CATEGORIES, CATEGORIES);
-        uriMatcher.addURI(authority, MoviesContract.PATH_MOVIES + "/#", MOVIES_WITH_CATEGORY);
+        uriMatcher.addURI(authority, MoviesContract.PATH_MOVIES + "/*", MOVIES_WITH_CATEGORY);
         uriMatcher.addURI(authority, MoviesContract.PATH_MOVIE_CATEGORY, MOVIE_CATEGORY);
 
         return uriMatcher;
@@ -106,6 +102,8 @@ public class MoviesProvider extends ContentProvider {
         return null;
     }
 
+
+    //Insert method manages favorites inserts and deletes
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -117,13 +115,24 @@ public class MoviesProvider extends ContentProvider {
 
         switch (match) {
             case MOVIES:
-//                    Inserting movie as favorite.
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID, getCategoryByName(getContext().getString(R.string.favorites_low)));
-                contentValues.put(MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID, values.getAsInteger(MoviesContract.MovieEntry._ID));
 
-                result = db.insert(MoviesContract.MovieCategoryEntry.TABLE_NAME, null, contentValues);
-                resultUri = MoviesContract.MovieEntry.buildMoviesUri(result);
+                int movieID = values.getAsInteger(MoviesContract.MovieEntry._ID);
+
+                if (existsMovie(movieID, db)) {
+                    String selection = MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " = " + Integer.toString(movieID) +
+                            " AND " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + getCategoryByName(getContext().getString(R.string.favorites_low));
+                    delete(MoviesContract.MovieEntry.buildMoviesData(), selection, null);
+                } else {
+                    //                    Inserting movie as favorite.
+                    ContentValues contentValues = new ContentValues();
+                    contentValues.put(MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID, getCategoryByName(getContext().getString(R.string.favorites_low)));
+                    contentValues.put(MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID, movieID);
+
+                    result = db.insert(MoviesContract.MovieCategoryEntry.TABLE_NAME, null, contentValues);
+                    resultUri = MoviesContract.MovieEntry.buildMoviesUri(result);
+
+                }
+
 
                 break;
             default:
@@ -133,12 +142,13 @@ public class MoviesProvider extends ContentProvider {
         return resultUri;
     }
 
+
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         int match = mUriMatcher.match(uri);
-        int rowsDeleted;
+        int rowsDeleted = 0;
 
 
         if (selection == null) {
@@ -147,7 +157,11 @@ public class MoviesProvider extends ContentProvider {
 
         switch (match) {
             case MOVIES:
-                rowsDeleted = db.delete(MoviesContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
+                rowsDeleted = db.delete(MoviesContract.MovieCategoryEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case MOVIE_CATEGORY:
+                db.rawQuery("DELETE FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
+                        " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = ?", selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
@@ -191,7 +205,10 @@ public class MoviesProvider extends ContentProvider {
             case MOVIES_WITH_CATEGORY:
                 db.beginTransaction();
                 try {
-                    int categoryId = Integer.parseInt(MoviesContract.MovieEntry.getCategoryFromUri(uri));
+
+
+                    //TODO => DElete movies from category before insert new movies
+                    int categoryId = getCategoryByName(MoviesContract.MovieEntry.getCategoryFromUri(uri));
 
                     for (ContentValues contentValues : values) {
                         db.insert(MoviesContract.MovieEntry.TABLE_NAME, null, contentValues);
@@ -206,9 +223,6 @@ public class MoviesProvider extends ContentProvider {
                             returnCount++;
                         }
                     }
-
-
-                    //TODO => insert category - movie for movies
 
 
                     db.setTransactionSuccessful();
@@ -246,9 +260,27 @@ public class MoviesProvider extends ContentProvider {
         //Obtaining category ID
         Cursor cursor = query(MoviesContract.CategoryEntry.buildCategoryData(),
                 MoviesContract.CategoryEntry.CATEGORIES_PROJECTION, MoviesContract.CategoryEntry.COLUMN_NAME + "=? ", new String[]{name}, null);
-        int category = CursorUtils.getCategory(cursor);
 
-        return category;
+        return getCategory(cursor);
 
+    }
+
+    private int getCategory(Cursor cursor) {
+        int result = 0;
+        if (cursor != null && cursor.moveToFirst()) {
+            result = cursor.getInt(0);
+        }
+        return result;
+    }
+
+
+    private boolean existsMovie(int movieID, SQLiteDatabase db) {
+        Cursor cursor = db.rawQuery("SELECT * FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
+                " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " = " + Integer.toString(movieID) + " AND " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + getCategoryByName(getContext().getString(R.string.favorites_low)), null);
+        boolean exists = cursor != null && cursor.moveToFirst();
+        if (cursor != null)
+            cursor.close();
+
+        return exists;
     }
 }

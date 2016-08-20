@@ -61,12 +61,8 @@ public class MoviesService extends IntentService {
                 //Parse Data
                 movies = parseJson(jsonResult);
 
-//              getting correct category to insert movies
-                Cursor cursorCategory = getContentResolver().query(MoviesContract.CategoryEntry.buildCategoryData(),
-                        MoviesContract.CategoryEntry.CATEGORIES_PROJECTION, MoviesContract.CategoryEntry.COLUMN_NAME + "=? ", new String[]{movieChoice}, null);
-
-                //insert data into database
-                getContentResolver().bulkInsert(MoviesContract.MovieEntry.buildMoviesDataWithCategory(CursorUtils.getCategory(cursorCategory)), CursorUtils.prepareToInsertMovies(movies));
+//      insert data into database
+                getContentResolver().bulkInsert(MoviesContract.MovieEntry.buildMoviesDataWithCategory(movieChoice), CursorUtils.prepareToInsertMovies(movies));
 
                 resultIntent.setAction(MOVIE_DATA_ACTION_INCOMING);
                 sendBroadcast(resultIntent);

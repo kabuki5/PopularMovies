@@ -92,12 +92,5 @@ public class CursorUtils {
         return contentValues;
     }
 
-    public static int getCategory(Cursor cursor) {
-        int result = 0;
-        if (cursor != null && cursor.moveToFirst()) {
-            result = cursor.getInt(0);
-        }
-        return result;
-    }
 
 }
