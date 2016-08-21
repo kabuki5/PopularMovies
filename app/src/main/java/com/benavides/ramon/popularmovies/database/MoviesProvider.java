@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.benavides.ramon.popularmovies.R;
 
@@ -118,7 +119,7 @@ public class MoviesProvider extends ContentProvider {
 
                 int movieID = values.getAsInteger(MoviesContract.MovieEntry._ID);
 
-                if (existsMovie(movieID, db)) {
+                if (existsMovie(movieID, db)) {// If movie exists then it is deleted
                     String selection = MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " = " + Integer.toString(movieID) +
                             " AND " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + getCategoryByName(getContext().getString(R.string.favorites_low));
                     delete(MoviesContract.MovieEntry.buildMoviesData(), selection, null);
@@ -160,8 +161,13 @@ public class MoviesProvider extends ContentProvider {
                 rowsDeleted = db.delete(MoviesContract.MovieCategoryEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             case MOVIE_CATEGORY:
-                db.rawQuery("DELETE FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
-                        " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = ?", selectionArgs);
+                String deleteSentence = "DELETE FROM " + MoviesContract.MovieEntry.TABLE_NAME + " WHERE " + MoviesContract.MovieEntry._ID +
+                        " IN (SELECT " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
+                        " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + selectionArgs[0] + "  );";
+
+//                delete from Movies table
+                db.execSQL(deleteSentence);
+
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
@@ -170,7 +176,6 @@ public class MoviesProvider extends ContentProvider {
         if (rowsDeleted != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
-
         return rowsDeleted;
     }
 
@@ -203,27 +208,28 @@ public class MoviesProvider extends ContentProvider {
         final int match = mUriMatcher.match(uri);
         switch (match) {
             case MOVIES_WITH_CATEGORY:
+//              getting category ID
+                int categoryId = getCategoryByName(MoviesContract.MovieEntry.getCategoryFromUri(uri));
+
+//              delete movies from Movies table and from Movie-Category table
+                delete(MoviesContract.MovieCategoryEntry.buildMovieCategoryData(), null, new String[]{Integer.toString(categoryId)});
+
                 db.beginTransaction();
+//              inserting movies into Movies table and Movie-Category relation
                 try {
-
-
-                    //TODO => DElete movies from category before insert new movies
-                    int categoryId = getCategoryByName(MoviesContract.MovieEntry.getCategoryFromUri(uri));
-
-                    for (ContentValues contentValues : values) {
-                        db.insert(MoviesContract.MovieEntry.TABLE_NAME, null, contentValues);
+                    for (ContentValues value : values) {
+                        db.insert(MoviesContract.MovieEntry.TABLE_NAME, null, value);
 
                         //Inserting relation into Category-Movie Table
-                        ContentValues value = new ContentValues();
-                        value.put(MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID, categoryId);
-                        value.put(MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID, contentValues.getAsInteger(MoviesContract.MovieEntry._ID));
+                        ContentValues contentValues = new ContentValues();
+                        contentValues.put(MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID, categoryId);
+                        contentValues.put(MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID, value.getAsInteger(MoviesContract.MovieEntry._ID));
 
-                        long res = db.insert(MoviesContract.MovieCategoryEntry.TABLE_NAME, null, value);
+                        long res = db.insert(MoviesContract.MovieCategoryEntry.TABLE_NAME, null, contentValues);
                         if (res != -1) {
                             returnCount++;
                         }
                     }
-
 
                     db.setTransactionSuccessful();
                 } finally {
@@ -273,7 +279,7 @@ public class MoviesProvider extends ContentProvider {
         return result;
     }
 
-
+//    Checks if movie exists
     private boolean existsMovie(int movieID, SQLiteDatabase db) {
         Cursor cursor = db.rawQuery("SELECT * FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
                 " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " = " + Integer.toString(movieID) + " AND " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + getCategoryByName(getContext().getString(R.string.favorites_low)), null);
