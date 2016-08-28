@@ -162,14 +162,14 @@ public class MoviesProvider extends ContentProvider {
                 break;
             case MOVIE_CATEGORY:
 
-                String deleteNotNeededMovies = "DELETE FROM "+ MoviesContract.MovieEntry.TABLE_NAME+
-                        " WHERE "+ MoviesContract.MovieEntry._ID+" NOT IN " +
-                        "(SELECT "+ MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID +" FROM "+ MoviesContract.MovieCategoryEntry.TABLE_NAME+" WHERE "+ MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID+" <> ?);";
+                String deleteNotNeededMovies = "DELETE FROM " + MoviesContract.MovieEntry.TABLE_NAME +
+                        " WHERE " + MoviesContract.MovieEntry._ID + " NOT IN " +
+                        "(SELECT " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME + " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " <> ?);";
 
-                db.execSQL(deleteNotNeededMovies,selectionArgs);
+                db.execSQL(deleteNotNeededMovies, selectionArgs);
 
                 String deleteMovieCategoryRelation = "DELETE FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
-                        " WHERE "+ MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + selectionArgs[0];
+                        " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + selectionArgs[0];
 
                 db.execSQL(deleteMovieCategoryRelation);
 
@@ -285,7 +285,7 @@ public class MoviesProvider extends ContentProvider {
         return result;
     }
 
-//    Checks if movie exists
+    //    Checks if movie exists
     private boolean existsMovie(int movieID, SQLiteDatabase db) {
         Cursor cursor = db.rawQuery("SELECT * FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
                 " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " = " + Integer.toString(movieID) + " AND " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + getCategoryByName(getContext().getString(R.string.favorites_low)), null);
