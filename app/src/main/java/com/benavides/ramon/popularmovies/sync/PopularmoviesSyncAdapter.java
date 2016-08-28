@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SyncRequest;
 import android.content.SyncResult;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.util.Log;
 
 import com.benavides.ramon.popularmovies.MainActivity;
 import com.benavides.ramon.popularmovies.R;
+import com.benavides.ramon.popularmovies.data.Category;
 import com.benavides.ramon.popularmovies.data.Movie;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
 import com.benavides.ramon.popularmovies.utils.CursorUtils;
@@ -44,16 +46,13 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private static final int NOTIFICATION_ID = 100;
 
-    public static final String MOVIE_DATA_ACTION_INCOMING = "com.benavides.ramon.popularmovies.ACTION_DATA_INCOMING";
-    public static final String MOVIE_DATA_ACTION_ERROR = "com.benavides.ramon.popularmovies.ACTION_DATA_ERROR";
-
     public PopularmoviesSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
     }
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d("RBM"," Performing sync with SyncAdapter!!!");
+        Log.d("RBM", " Performing sync with SyncAdapter!!!");
 
 // TODO =>  BIG COOKIE!!!
 
@@ -62,55 +61,40 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
          * and store it in database
          */
 
-
-
-
-
-
-
-
-
-
-
-        Intent resultIntent = new Intent();
+        Context context = getContext();
 
         HttpURLConnection urlConnection = null;
         ArrayList<Movie> movies = null;
         try {
 
+            //getting all categories to request TMDB server
+            ArrayList<Category> categories = getCategories(context);
+            for (Category category : categories) {
+                Log.d("RBM", "Category => " + category.getName());
+                String movieCategory = category.getName();
+                if (movieCategory == null) {
+                    //
+                } else {
+                    //Composing url to request data
+                    URL url = new URL(getContext().getString(R.string.tmdb_api_url) + movieCategory + getContext().getString(R.string.tmdb_api_key));
 
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.connect();
 
+                    //Getting string from input stream
+                    String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
 
-            String movieChoice = Utils.readStringPreference(getContext(), getContext().getString(R.string.sort_by_pref)); // get category from preferences
-
-            if (movieChoice == null) {
-                //
-                resultIntent.setAction(MOVIE_DATA_ACTION_ERROR);
-                //getContext().sendBroadcast(resultIntent);
-            } else {
-                //Composing url to request data
-                URL url = new URL(getContext().getString(R.string.tmdb_api_url) + movieChoice + getContext().getString(R.string.tmdb_api_key));
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                //Getting string from input stream
-                String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
-
-                //Parse Data
-                movies = parseJson(jsonResult);
+                    //Parse Data
+                    movies = parseJson(jsonResult);
 
 //      insert data into database
-                getContext().getContentResolver().bulkInsert(MoviesContract.MovieEntry.buildMoviesDataWithCategory(movieChoice), CursorUtils.prepareToInsertMovies(movies));
+                    context.getContentResolver().bulkInsert(MoviesContract.MovieEntry.buildMoviesDataWithCategory(movieCategory), CursorUtils.prepareToInsertMovies(movies));
 
-                resultIntent.setAction(MOVIE_DATA_ACTION_INCOMING);
-                // getContext().sendBroadcast(resultIntent);
-
-                notifySync();
+                }
             }
 
-
+            notifySync();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JSONException e) {
@@ -118,13 +102,13 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-    private void notifySync(){
+    private void notifySync() {
         NotificationManager notificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getContext())
                         .setColor(getContext().getResources().getColor(R.color.colorPrimary))
                         .setSmallIcon(R.drawable.ic_movie)
-                        .setLargeIcon(BitmapFactory.decodeResource(getContext().getResources(),R.drawable.ic_movie))
+                        .setLargeIcon(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ic_movie))
                         .setContentTitle(getContext().getString(R.string.app_name))
                         .setContentText("Popular Movies Updated database");
 
@@ -132,14 +116,10 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
         stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(resultPendingIntent);
 
-        notificationManager.notify(NOTIFICATION_ID,mBuilder.build());
+        notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }
 
     public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
@@ -230,7 +210,37 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
     }
 
-    public static void initSyncAdapter(Context context){
+    // get all categories and make category array list from cursor
+    private ArrayList<Category> getCategories(Context context) {
+        Cursor cursor = null;
+        ArrayList<Category> categories = new ArrayList<>();
+        try {
+            cursor = context.getContentResolver().query(MoviesContract.CategoryEntry.buildCategoryData(),
+                    MoviesContract.CategoryEntry.CATEGORIES_PROJECTION,
+                    MoviesContract.CategoryEntry.COLUMN_NAME+" <> ?",
+                    new String[]{context.getString(R.string.favorites_low)},
+                    null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    Category category = new Category();
+                    category.setId(cursor.getInt(MoviesContract.CategoryEntry.CATEGORIES_COLUMN_ID));
+                    category.setName(cursor.getString(MoviesContract.CategoryEntry.CATEGORIES_COLUMN_NAME));
+                    categories.add(category);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return categories;
+
+    }
+
+    // Main method to call Sync Adapter
+    public static void initSyncAdapter(Context context) {
         getSyncAccount(context);
     }
 }

@@ -39,8 +39,8 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " TEXT NOT NULL, " +
                 MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " TEXT NOT NULL, " +
                 "UNIQUE ("+  MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID+" , "+  MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID +" )," +
-                "FOREIGN KEY ("+ MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID+") REFERENCES "+ MoviesContract.CategoryEntry.TABLE_NAME +" ("+ MoviesContract.CategoryEntry._ID+") ON DELETE CASCADE, "+
-                "FOREIGN KEY ("+ MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID+") REFERENCES "+ MoviesContract.MovieEntry.TABLE_NAME +" ("+ MoviesContract.MovieEntry._ID+") ON DELETE CASCADE);";
+                "FOREIGN KEY ("+ MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID+") REFERENCES "+ MoviesContract.CategoryEntry.TABLE_NAME +/*" ("+ MoviesContract.CategoryEntry._ID+") ON DELETE CASCADE, "+*/
+                "FOREIGN KEY ("+ MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID+") REFERENCES "+ MoviesContract.MovieEntry.TABLE_NAME + ";";/* +" ("+ MoviesContract.MovieEntry._ID+") ON DELETE CASCADE);";*/
 
         db.execSQL(SQL_CREATE_MOVIES_TABLE);
         db.execSQL(SQL_CREATE_CATEGORIES_TABLE);

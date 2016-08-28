@@ -161,12 +161,18 @@ public class MoviesProvider extends ContentProvider {
                 rowsDeleted = db.delete(MoviesContract.MovieCategoryEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             case MOVIE_CATEGORY:
-                String deleteSentence = "DELETE FROM " + MoviesContract.MovieEntry.TABLE_NAME + " WHERE " + MoviesContract.MovieEntry._ID +
-                        " IN (SELECT " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
-                        " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + selectionArgs[0] + "  );";
 
-//                delete from Movies table
-                db.execSQL(deleteSentence);
+                String deleteNotNeededMovies = "DELETE FROM "+ MoviesContract.MovieEntry.TABLE_NAME+
+                        " WHERE "+ MoviesContract.MovieEntry._ID+" NOT IN " +
+                        "(SELECT "+ MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID +" FROM "+ MoviesContract.MovieCategoryEntry.TABLE_NAME+" WHERE "+ MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID+" <> ?);";
+
+                db.execSQL(deleteNotNeededMovies,selectionArgs);
+
+                String deleteMovieCategoryRelation = "DELETE FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
+                        " WHERE "+ MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + selectionArgs[0];
+
+                db.execSQL(deleteMovieCategoryRelation);
+
 
                 break;
             default:
