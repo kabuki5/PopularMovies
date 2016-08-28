@@ -39,6 +39,8 @@ public class Utils {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            reader.close();
         }
 
         return sb.toString();

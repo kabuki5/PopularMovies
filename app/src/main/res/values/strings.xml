@@ -18,4 +18,6 @@
     <string name="sort_by_pref">sort_by</string>
     <string name="favorites">FAVORITES</string>
     <string name="favorites_low">favorites</string>
+    <string name="sync_account_type">com.benavides.ramon.popular_movies</string>
+    <string name="content_authority">com.benavides.ramon.popularmovies</string>
 </resources>

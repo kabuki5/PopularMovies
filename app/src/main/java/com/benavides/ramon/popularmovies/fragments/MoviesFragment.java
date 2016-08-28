@@ -4,19 +4,15 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.LoaderManager;
-import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,7 +27,7 @@ import com.benavides.ramon.popularmovies.adapters.MoviesCursorAdapter;
 import com.benavides.ramon.popularmovies.data.Movie;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
 import com.benavides.ramon.popularmovies.interfaces.MovieSelectorInterface;
-import com.benavides.ramon.popularmovies.service.MoviesService;
+import com.benavides.ramon.popularmovies.sync.PopularmoviesSyncAdapter;
 import com.benavides.ramon.popularmovies.utils.CursorUtils;
 import com.benavides.ramon.popularmovies.utils.Utils;
 
@@ -58,7 +54,7 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
 
     private MovieSelectorInterface mCallback;
     private MoviesCursorAdapter mAdapter;
-    private MovieDataReceiver mDataReceiver;
+   // private MovieDataReceiver mDataReceiver;
 
     @Override
     public void onAttach(Context context) {
@@ -81,19 +77,19 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public void onResume() {
         super.onResume();
-        mDataReceiver = new MovieDataReceiver();
+     /*   mDataReceiver = new MovieDataReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(MoviesService.MOVIE_DATA_ACTION_INCOMING);
         intentFilter.addAction(MoviesService.MOVIE_DATA_ACTION_ERROR);
-        getActivity().registerReceiver(mDataReceiver, intentFilter);
+        getActivity().registerReceiver(mDataReceiver, intentFilter);*/
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (mDataReceiver != null) {
+        /*if (mDataReceiver != null) {
             getActivity().unregisterReceiver(mDataReceiver);
-        }
+        }*/
     }
 
     @Nullable
@@ -117,7 +113,7 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
 //            mGridView.smoothScrollToPosition(savedInstanceState.getInt(GRID_POSITION));
 //            Log.v("RBM", "Restoring state!!");
 //        } else {
-            Log.v("RBM", "Calling api task!!");
+           // Log.v("RBM", "Calling api task!!");
 //            requestToService(currentSortTypeSelected);//pass popular/top_rated parameter
 //        }
 
@@ -137,7 +133,7 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestToService(Utils.readStringPreference(getActivity(), getString(R.string.sort_by_pref)));
+                PopularmoviesSyncAdapter.syncImmediately(getActivity());
             }
         });
     }
@@ -252,7 +248,8 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
 
 
     //    service methods
-    private void requestToService(String typeSelection) {
+  /*  private void requestToService(String typeSelection) {
+        Log.v("RBM", "Calling api task!!");
         Intent intentToService = new Intent(getActivity(), MoviesService.class);
         intentToService.putExtra(MoviesService.TYPE_PARAM, typeSelection);
         getActivity().startService(intentToService);
@@ -270,7 +267,7 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
                 // NO data received
             }
         }
-    }
+    }*/
 
     public void updateData(){
         getLoaderManager().restartLoader(MOVIES_LOADER, null, MoviesFragment.this);
