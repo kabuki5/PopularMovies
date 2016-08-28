@@ -49,8 +49,6 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
 
     @BindView(R.id.movies_grv)
     GridView mGridView;
-    @BindView(R.id.fab)
-    FloatingActionButton mFab;
 
     private MovieSelectorInterface mCallback;
     private MoviesCursorAdapter mAdapter;
@@ -74,23 +72,6 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
         setHasOptionsMenu(true);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-     /*   mDataReceiver = new MovieDataReceiver();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MoviesService.MOVIE_DATA_ACTION_INCOMING);
-        intentFilter.addAction(MoviesService.MOVIE_DATA_ACTION_ERROR);
-        getActivity().registerReceiver(mDataReceiver, intentFilter);*/
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        /*if (mDataReceiver != null) {
-            getActivity().unregisterReceiver(mDataReceiver);
-        }*/
-    }
 
     @Nullable
     @Override
@@ -104,21 +85,8 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
 
-
-//        String currentSortTypeSelected = Utils.readStringPreference(getActivity(), getString(R.string.sort_by_pref));
-//            requestToService(currentSortTypeSelected);//pass popular/top_rated parameter
-
-//        Restoring instance state. I don't care what sort type is established cause I have data array list from bundle.
-//        if (savedInstanceState != null && savedInstanceState.containsKey(MOVIE_PARAM)) {
-//            mGridView.smoothScrollToPosition(savedInstanceState.getInt(GRID_POSITION));
-//            Log.v("RBM", "Restoring state!!");
-//        } else {
-           // Log.v("RBM", "Calling api task!!");
-//            requestToService(currentSortTypeSelected);//pass popular/top_rated parameter
-//        }
-
         getLoaderManager().initLoader(MOVIES_LOADER, null, this);
-//
+
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -129,13 +97,6 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
         mAdapter = new MoviesCursorAdapter(getActivity(), null, true);
         mGridView.setAdapter(mAdapter);
         mGridView.setOnItemClickListener(this);
-
-        mFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PopularmoviesSyncAdapter.syncImmediately(getActivity());
-            }
-        });
     }
 
     @Override
@@ -247,29 +208,7 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
     }
 
 
-    //    service methods
-  /*  private void requestToService(String typeSelection) {
-        Log.v("RBM", "Calling api task!!");
-        Intent intentToService = new Intent(getActivity(), MoviesService.class);
-        intentToService.putExtra(MoviesService.TYPE_PARAM, typeSelection);
-        getActivity().startService(intentToService);
-    }
-
-
-    class MovieDataReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action != null && action.equals(MoviesService.MOVIE_DATA_ACTION_INCOMING)) {
-                updateData();
-            } else if (action != null && action.equals(MoviesService.MOVIE_DATA_ACTION_ERROR)) {
-                // NO data received
-            }
-        }
-    }*/
-
-    public void updateData(){
+     public void updateData(){
         getLoaderManager().restartLoader(MOVIES_LOADER, null, MoviesFragment.this);
     }
 }

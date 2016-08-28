@@ -9,6 +9,7 @@ import android.util.Log;
 import com.benavides.ramon.popularmovies.data.Movie;
 import com.benavides.ramon.popularmovies.fragments.MovieDetailFragment;
 import com.benavides.ramon.popularmovies.interfaces.MovieSelectorInterface;
+import com.benavides.ramon.popularmovies.sync.PopularmoviesSyncAdapter;
 import com.benavides.ramon.popularmovies.utils.Utils;
 
 public class MainActivity extends AppCompatActivity implements MovieSelectorInterface {
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity implements MovieSelectorInte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        PopularmoviesSyncAdapter.initSyncAdapter(this);
     }
 
 

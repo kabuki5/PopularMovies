@@ -39,7 +39,7 @@ import java.util.ArrayList;
  */
 public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
-    public static final int SYNC_INTERVAL = 60 * 180;
+    public static final int SYNC_INTERVAL = 60 * 180; //3 hours
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
 
     private static final int NOTIFICATION_ID = 100;
@@ -56,11 +56,31 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
         Log.d("RBM"," Performing sync with SyncAdapter!!!");
 
 // TODO =>  BIG COOKIE!!!
+
+        /**
+         * BIG COOKIE means get all movie categories data -> Movies data + trailers + reviews
+         * and store it in database
+         */
+
+
+
+
+
+
+
+
+
+
+
         Intent resultIntent = new Intent();
 
         HttpURLConnection urlConnection = null;
         ArrayList<Movie> movies = null;
         try {
+
+
+
+
             String movieChoice = Utils.readStringPreference(getContext(), getContext().getString(R.string.sort_by_pref)); // get category from preferences
 
             if (movieChoice == null) {
@@ -148,12 +168,7 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                 context.getString(R.string.app_name), context.getString(R.string.sync_account_type));
 
         // If the password doesn't exist, the account doesn't exist
-        if (null == accountManager.getPassword(newAccount)) {
-
-        /*
-         * Add the account and account type, no password or user data
-         * If successful, return the Account object, otherwise report an error.
-         */
+        if (accountManager.getPassword(newAccount) == null) {
             if (!accountManager.addAccountExplicitly(newAccount, "", null)) {
                 return null;
             }
@@ -181,7 +196,7 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(getSyncAccount(context), MoviesContract.CONTENT_AUTHORITY, bundle);
+        ContentResolver.requestSync(getSyncAccount(context), context.getString(R.string.content_authority), bundle);
     }
 
 
@@ -213,5 +228,9 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
         return result;
 
+    }
+
+    public static void initSyncAdapter(Context context){
+        getSyncAccount(context);
     }
 }
