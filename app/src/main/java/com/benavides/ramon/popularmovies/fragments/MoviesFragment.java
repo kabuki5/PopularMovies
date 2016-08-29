@@ -97,6 +97,7 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
         mAdapter = new MoviesCursorAdapter(getActivity(), null, true);
         mGridView.setAdapter(mAdapter);
         mGridView.setOnItemClickListener(this);
+        //PopularmoviesSyncAdapter.syncImmediately(getActivity());
     }
 
     @Override

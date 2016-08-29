@@ -70,7 +70,7 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
             //getting all categories to request TMDB server
             ArrayList<Category> categories = getCategories(context);
             for (Category category : categories) {
-                Log.d("RBM", "Category => " + category.getName());
+
                 String movieCategory = category.getName();
                 if (movieCategory == null) {
                     //

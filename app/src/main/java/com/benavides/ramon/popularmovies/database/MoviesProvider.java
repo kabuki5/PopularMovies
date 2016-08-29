@@ -4,9 +4,11 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.benavides.ramon.popularmovies.R;
@@ -42,7 +44,7 @@ public class MoviesProvider extends ContentProvider {
     public boolean onCreate() {
         mDbHelper = new MovieDBHelper(getContext());
 
-//        inserting categories
+        // inserting categories
         ContentValues[] insertValues = new ContentValues[3];
         ContentValues contentValues = new ContentValues();
         contentValues.put(MoviesContract.CategoryEntry._ID, 0);
@@ -162,16 +164,44 @@ public class MoviesProvider extends ContentProvider {
                 break;
             case MOVIE_CATEGORY:
 
-                String deleteNotNeededMovies = "DELETE FROM " + MoviesContract.MovieEntry.TABLE_NAME +
-                        " WHERE " + MoviesContract.MovieEntry._ID + " NOT IN " +
-                        "(SELECT " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME + " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " <> ?);";
+                try {
 
-                db.execSQL(deleteNotNeededMovies, selectionArgs);
+                    //get ids to remove
+                    final String idsToDeleteQuery = "SELECT " + MoviesContract.MovieEntry._ID + " FROM " + MoviesContract.MovieEntry.TABLE_NAME +
+                            " WHERE " + MoviesContract.MovieEntry._ID + " NOT IN " +
+                            "(SELECT " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME + " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " <> ?);";
 
-                String deleteMovieCategoryRelation = "DELETE FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
-                        " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + selectionArgs[0];
+                    Cursor cursor = db.rawQuery(idsToDeleteQuery, selectionArgs);
 
-                db.execSQL(deleteMovieCategoryRelation);
+                    Integer[] ids = null;
+                    if (cursor != null && cursor.moveToFirst()) {
+                        ids = new Integer[cursor.getCount()];
+                        int i = 0;
+                        do {
+                            ids[i] = cursor.getInt(0);
+                            i++;
+                        } while (cursor.moveToNext());
+                    }
+                    if (ids != null) {
+                        // delete relationship
+                        final String deleteMovieCategoryRelation = "DELETE FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
+                                " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + selectionArgs[0];
+
+                        db.execSQL(deleteMovieCategoryRelation);
+
+                        // delete movies
+
+                        final String deleteNotNeededMovies = "DELETE FROM " + MoviesContract.MovieEntry.TABLE_NAME + " WHERE " + MoviesContract.MovieEntry._ID + " IN (%s);";
+
+                        String args = TextUtils.join(", ", ids);
+
+                        db.execSQL(String.format(deleteNotNeededMovies, args));
+                    }
+
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
 
 
                 break;

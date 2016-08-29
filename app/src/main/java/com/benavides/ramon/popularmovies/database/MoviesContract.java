@@ -16,7 +16,8 @@ public class MoviesContract {
     public static final String PATH_MOVIES = "movies";
     public static final String PATH_CATEGORIES = "categories";
     public static final String PATH_MOVIE_CATEGORY = "movie_category";
-
+    public static final String PATH_REVIEWS = "reviews";
+    public static final String PATH_TRAILERS = "trailers";
 
 
     public static final class MovieEntry implements BaseColumns {
@@ -54,7 +55,7 @@ public class MoviesContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
-        public static final String [] MOVIES_PROJECTION = {
+        public static final String[] MOVIES_PROJECTION = {
                 _ID,
                 COLUMN_TITLE,
                 COLUMN_SYNOPSIS,
@@ -64,7 +65,7 @@ public class MoviesContract {
                 COLUMN_BACKDROP
         };
 
-// These are tied with the CATEGORIES_PROJECTION
+        // These are tied with the CATEGORIES_PROJECTION
         public static final int MOVIES_COLUMN_ID = 0;
         public static final int MOVIES_COLUMN_TITLE = 1;
         public static final int MOVIES_COLUMN_SYNOPSIS = 2;
@@ -75,7 +76,7 @@ public class MoviesContract {
     }
 
 
-    public static final class CategoryEntry implements BaseColumns{
+    public static final class CategoryEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_CATEGORIES).build();
@@ -84,7 +85,7 @@ public class MoviesContract {
 
         public static final String COLUMN_NAME = "name";
 
-        public static final String [] CATEGORIES_PROJECTION = {
+        public static final String[] CATEGORIES_PROJECTION = {
                 _ID,
                 COLUMN_NAME
         };
@@ -102,7 +103,7 @@ public class MoviesContract {
         }
     }
 
-    public static final class MovieCategoryEntry implements BaseColumns{
+    public static final class MovieCategoryEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIE_CATEGORY).build();
@@ -113,26 +114,39 @@ public class MoviesContract {
         public static final String COLUMN_MOVIE_ID = "movie_id";
 
 
-        public static final String [] CATEGORY_MOVIE_PROJECTION = {
+        public static final String[] CATEGORY_MOVIE_PROJECTION = {
                 _ID,
                 COLUMN_CATEGORY_ID,
                 COLUMN_MOVIE_ID
         };
 
-        public static final int CATEGORIES_COLUMN_ID = 0;
-        public static final int CATEGORIES_COLUMN_CATEGORY_ID = 1;
-        public static final int CATEGORIES_COLUMN_MOVIE_ID = 2;
-
         public static Uri buildMovieCategoryData() {
             return CONTENT_URI.buildUpon().build();
         }
-
-        public static Uri buildMovieCategoryUri(long id) {
-            return ContentUris.withAppendedId(CONTENT_URI, id);
-        }
     }
 
+    public static final class ReviewEntry implements BaseColumns {
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEWS).build();
 
+        public static final String TABLE_NAME = "reviews";
+
+        public static final String COLUMN_AUTHOR = "author";
+        public static final String COLUMN_CONTENT = "content";
+        public static final String COLUMN_MOVIE_ID = "movie_id";
+
+    }
+
+    public static final class TrailerEntry implements BaseColumns {
+        public static final Uri CONTENT_uri =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAILERS).build();
+
+        public static final String TABLE_NAME = "trailers";
+
+        public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_SOURCE = "source";
+        public static final String COLUMN_MOVIE_ID = "movie_id";
+    }
 
 }
 
