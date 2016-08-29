@@ -10,7 +10,7 @@ import android.util.Log;
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public static final String DATABASE_NAME = "movies.db";
 
@@ -59,14 +59,8 @@ public class MovieDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-//      dropping older table
-      //  db.execSQL("DROP TABLE IF EXISTS "+ MoviesContract.MovieEntry.TABLE_NAME);
-
-//      create tables
-        //onCreate(db);
-
-
-        //Really I don't want drop table and lose the user data. In new versions, this method should contains "ALTER TABLE" clauses.
-
+       /* if(oldVersion == 1 && newVersion == 2){
+           final String SQL_CREATE_REVIEWS_TABLE =
+        }*/
     }
 }

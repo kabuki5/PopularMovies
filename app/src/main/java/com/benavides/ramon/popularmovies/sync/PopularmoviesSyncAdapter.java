@@ -54,7 +54,7 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d("RBM", " Performing sync with SyncAdapter!!!");
 
-// TODO =>  BIG COOKIE!!!
+// TODO =>  BIG COOKIE!!! request trailers and reviews
 
         /**
          * BIG COOKIE means get all movie categories data -> Movies data + trailers + reviews
