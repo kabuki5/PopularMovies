@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncRequest;
@@ -23,21 +24,23 @@ import com.benavides.ramon.popularmovies.MainActivity;
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.data.Category;
 import com.benavides.ramon.popularmovies.data.Movie;
+import com.benavides.ramon.popularmovies.data.Review;
+import com.benavides.ramon.popularmovies.data.Trailer;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
-import com.benavides.ramon.popularmovies.utils.CursorUtils;
+import com.benavides.ramon.popularmovies.utils.DataHelper;
 import com.benavides.ramon.popularmovies.utils.Utils;
 
-import org.json.JSONArray;
+import org.apache.commons.lang3.ArrayUtils;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
 /**
- * Created by Ramon on 28/08/2016.
+ * Sync Adapter Class
  */
 public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
@@ -54,54 +57,57 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d("RBM", " Performing sync with SyncAdapter!!!");
 
-// TODO =>  BIG COOKIE!!! request trailers and reviews
-
-        /**
-         * BIG COOKIE means get all movie categories data -> Movies data + trailers + reviews
-         * and store it in database
-         */
-
+        // The BIG Cookie!!!! // The big cookie is not possible since we have just 40 max requests every 10 seconds
         Context context = getContext();
 
-        HttpURLConnection urlConnection = null;
-        ArrayList<Movie> movies = null;
-        try {
+        //getting all categories to request TMDB server
+        ArrayList<Category> categories = getCategories(context);
+        for (Category category : categories) {
+            String movieCategory = category.getName();
+            if (movieCategory != null) {
+                //      request to API to obtain movies data
+                ContentValues[] movieValues = retrieveMoviesData(movieCategory);
 
-            //getting all categories to request TMDB server
-            ArrayList<Category> categories = getCategories(context);
-            for (Category category : categories) {
+                //      request to API to obtain reviews and trailers from each movie
 
-                String movieCategory = category.getName();
-                if (movieCategory == null) {
-                    //
-                } else {
-                    //Composing url to request data
-                    URL url = new URL(getContext().getString(R.string.tmdb_api_url) + movieCategory + getContext().getString(R.string.tmdb_api_key));
+                // insert data into database
+                context.getContentResolver().bulkInsert(MoviesContract.MovieEntry.buildMoviesDataWithCategory(movieCategory), movieValues);
 
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setRequestMethod("GET");
-                    urlConnection.connect();
+                /*
+                ContentValues[] reviews = null;
+                ContentValues[] trailers = null;
 
-                    //Getting string from input stream
-                    String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
+                for (int i = 0; i < movieValues.length; i++) {
+                    int id = movieValues[i].getAsInteger(MoviesContract.MovieEntry._ID);
 
-                    //Parse Data
-                    movies = parseJson(jsonResult);
+                    if (reviews == null) {
+                        reviews = retrieveReviews(id);
+                    } else {
+                        reviews = ArrayUtils.addAll(reviews, retrieveReviews(id));
+                    }
 
-//      insert data into database
-                    context.getContentResolver().bulkInsert(MoviesContract.MovieEntry.buildMoviesDataWithCategory(movieCategory), CursorUtils.prepareToInsertMovies(movies));
-
+                    if (trailers == null) {
+                        trailers = retrieveTrailers(id);
+                    } else {
+                        trailers = ArrayUtils.addAll(trailers, retrieveTrailers(id));
+                    }
                 }
-            }
 
-            notifySync();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
+
+
+                // insert reviews into database
+                if (reviews != null)
+                    context.getContentResolver().bulkInsert(MoviesContract.ReviewEntry.buildReviewData(), reviews);
+                // insert trailers into database
+                if (trailers != null)
+                    context.getContentResolver().bulkInsert(MoviesContract.TrailerEntry.buildTrailerData(),trailers );*/
+            }
         }
+        notifySync();
     }
 
+
+    // TODO => take control over a notification per day
     private void notifySync() {
         NotificationManager notificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder =
@@ -169,7 +175,7 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
         /*
          * Start sync
          */
-        syncImmediately(context);
+        //syncImmediately(context);
     }
 
     public static void syncImmediately(Context context) {
@@ -180,34 +186,103 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
 
-    /**
-     * Method to parse the movie data base json response
-     *
-     * @param json String with json content
-     * @return
-     */
-    private ArrayList<Movie> parseJson(String json) throws JSONException {
+    private ContentValues[] retrieveMoviesData(String movieCategory) {
 
-        ArrayList<Movie> result = new ArrayList<>();
+        HttpURLConnection urlConnection = null;
+        ArrayList<Movie> movies = new ArrayList<>();
+        try {
+            //Composing url to request data
+            URL url = new URL(getContext().getString(R.string.tmdb_api_url) + movieCategory + getContext().getString(R.string.tmdb_api_key));
 
-        JSONObject movieData = new JSONObject(json);
-        JSONArray movies = movieData.getJSONArray("results");
-        for (int i = 0; i < movies.length(); i++) {
-            JSONObject movieObject = movies.getJSONObject(i);
-            Movie movie = new Movie();
-            movie.setId(movieObject.getInt("id"));
-            movie.setOriginalTitle(movieObject.getString("original_title"));
-            movie.setPoster(getContext().getString(R.string.tmdb_poster_base_url) + "w185" + movieObject.getString("poster_path"));
-            movie.setBackdrop(getContext().getString(R.string.tmdb_poster_base_url) + "w500" + movieObject.getString("backdrop_path"));
-            movie.setRating(movieObject.getDouble("vote_average"));
-            movie.setReleaseDate(movieObject.getString("release_date"));
-            movie.setSynopsis(movieObject.getString("overview"));
-            result.add(movie);
-//            Log.d("RBM","MOvie => "+movie.toString());
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            Log.d("RBM","RESPONSE CODE => "+urlConnection.getResponseCode());
+            Log.d("RBM","RESPONSE MESSAGE => "+urlConnection.getResponseMessage());
+            //Getting string from input stream
+            String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
+
+            //Parse Data
+            movies = DataHelper.parseMoviesJson(getContext(), jsonResult);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
-        return result;
+        return DataHelper.prepareToInsertMovies(movies);
 
+    }
+
+
+    private ContentValues[] retrieveReviews(int movieId) {
+        ArrayList<Review> reviews = new ArrayList<>();
+        HttpURLConnection urlConnection = null;
+
+        try {
+            //Composing url to request data
+            URL url = new URL(getContext().getString(R.string.tmdb_api_url) + movieId + "/reviews" + getContext().getString(R.string.tmdb_api_key));
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            Log.d("RBM","RESPONSE CODE => "+urlConnection.getResponseCode());
+            Log.d("RBM","RESPONSE MESSAGE => "+urlConnection.getResponseMessage());
+
+            //Getting string from input stream
+            String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
+
+            //Parse Data
+            reviews = DataHelper.parseReviewsJson(movieId, jsonResult);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return DataHelper.prepareToInsertReviews(reviews);
+
+    }
+
+    private ContentValues[] retrieveTrailers(int movieId) {
+        ArrayList<Trailer> trailers = new ArrayList<>();
+
+        HttpURLConnection urlConnection = null;
+
+        try {
+            //Composing url to request data
+            URL url = new URL(getContext().getString(R.string.tmdb_api_url) + movieId + "/videos" + getContext().getString(R.string.tmdb_api_key));
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            Log.d("RBM","RESPONSE CODE => "+urlConnection.getResponseCode());
+            Log.d("RBM","RESPONSE MESSAGE => "+urlConnection.getResponseMessage());
+
+            //Getting string from input stream
+            String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
+
+            //Parse Data
+            trailers = DataHelper.parseTrailersJson(movieId, jsonResult);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        return DataHelper.prepareToInsertTrailers(trailers);
     }
 
     // get all categories and make category array list from cursor
@@ -217,7 +292,7 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
         try {
             cursor = context.getContentResolver().query(MoviesContract.CategoryEntry.buildCategoryData(),
                     MoviesContract.CategoryEntry.CATEGORIES_PROJECTION,
-                    MoviesContract.CategoryEntry.COLUMN_NAME+" <> ?",
+                    MoviesContract.CategoryEntry.COLUMN_NAME + " <> ?",
                     new String[]{context.getString(R.string.favorites_low)},
                     null);
 

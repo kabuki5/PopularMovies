@@ -65,7 +65,7 @@ public class MoviesContract {
                 COLUMN_BACKDROP
         };
 
-        // These are tied with the CATEGORIES_PROJECTION
+        // These are tied with the MOVIES_PROJECTION
         public static final int MOVIES_COLUMN_ID = 0;
         public static final int MOVIES_COLUMN_TITLE = 1;
         public static final int MOVIES_COLUMN_SYNOPSIS = 2;
@@ -135,10 +135,26 @@ public class MoviesContract {
         public static final String COLUMN_CONTENT = "content";
         public static final String COLUMN_MOVIE_ID = "movie_id";
 
+        public static Uri buildReviewData() {
+            return CONTENT_URI.buildUpon().build();
+        }
+
+        public static final String[] REVIEW_PROJECTION = {
+                _ID,
+                COLUMN_AUTHOR,
+                COLUMN_CONTENT,
+                COLUMN_MOVIE_ID
+        };
+
+        // These are tied with the REVIEW_PROJECTION
+        public static final int REVIEWS_COLUMN_ID = 0;
+        public static final int REVIEWS_COLUMN_AUTHOR = 1;
+        public static final int REVIEWS_COLUMN_CONTENT = 2;
+        public static final int REVIEWS_COLUMN_MOVIE_ID = 3;
     }
 
     public static final class TrailerEntry implements BaseColumns {
-        public static final Uri CONTENT_uri =
+        public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAILERS).build();
 
         public static final String TABLE_NAME = "trailers";
@@ -146,6 +162,23 @@ public class MoviesContract {
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_SOURCE = "source";
         public static final String COLUMN_MOVIE_ID = "movie_id";
+
+        public static Uri buildTrailerData() {
+            return CONTENT_URI.buildUpon().build();
+        }
+
+        public static final String[] TRAILER_PROJECTION = {
+                _ID,
+                COLUMN_NAME,
+                COLUMN_SOURCE,
+                COLUMN_MOVIE_ID
+        };
+
+        // These are tied with the TRAILER_PROJECTION
+        public static final int TRAILER_COLUMN_ID = 0;
+        public static final int TRAILER_COLUMN_NAME = 1;
+        public static final int TRAILER_COLUMN_SOURCE = 2;
+        public static final int TRAILER_COLUMN_MOVIE_ID = 3;
     }
 
 }

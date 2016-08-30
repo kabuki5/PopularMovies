@@ -1,8 +1,6 @@
 package com.benavides.ramon.popularmovies.fragments;
 
-import android.app.Activity;
 import android.app.Fragment;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,17 +15,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.benavides.ramon.popularmovies.MainActivity;
 import com.benavides.ramon.popularmovies.MovieDetailActivity;
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.data.Movie;
-import com.benavides.ramon.popularmovies.utils.Utils;
+import com.benavides.ramon.popularmovies.data.Review;
+import com.benavides.ramon.popularmovies.data.Trailer;
+import com.benavides.ramon.popularmovies.interfaces.DataTaskListener;
+import com.benavides.ramon.popularmovies.tasks.ObtainDataTask;
 import com.squareup.picasso.Picasso;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,7 +35,7 @@ import butterknife.ButterKnife;
 /**
  * Created by ramon on 16/7/16.
  */
-public class MovieDetailFragment extends Fragment {
+public class MovieDetailFragment extends Fragment implements DataTaskListener {
 
     private static final String MOVIE_PARAM = "movie";
     private static final String TWO_PANE = "two_pane";
@@ -83,17 +83,17 @@ public class MovieDetailFragment extends Fragment {
 
 
         //Managing action bar navigation back button state
-        if(getActivity() instanceof MovieDetailActivity){
-            ActionBar actionBar = ((MovieDetailActivity)getActivity()).getSupportActionBar();
-            if(actionBar == null)
-                ((MovieDetailActivity)getActivity()).setSupportActionBar(toolbar);
-            actionBar = ((MovieDetailActivity)getActivity()).getSupportActionBar();
+        if (getActivity() instanceof MovieDetailActivity) {
+            ActionBar actionBar = ((MovieDetailActivity) getActivity()).getSupportActionBar();
+            if (actionBar == null)
+                ((MovieDetailActivity) getActivity()).setSupportActionBar(toolbar);
+            actionBar = ((MovieDetailActivity) getActivity()).getSupportActionBar();
             actionBar.setDisplayHomeAsUpEnabled(true);
-        }else{
-            ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-            if(actionBar == null)
-                ((MovieDetailActivity)getActivity()).setSupportActionBar(toolbar);
-            actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        } else {
+            ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+            if (actionBar == null)
+                ((MovieDetailActivity) getActivity()).setSupportActionBar(toolbar);
+            actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
             actionBar.setDisplayHomeAsUpEnabled(false);
 
         }
@@ -108,20 +108,21 @@ public class MovieDetailFragment extends Fragment {
 
 
 //        Restoring instance state
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             mMovie = savedInstanceState.getParcelable(MOVIE_PARAM);
             updateContent(mMovie);
-        }else{
+        } else {
             //Getting mMovie object from intent or arguments bundle to display info
             Bundle bundle = getArguments();
-            if(bundle!=null && bundle.containsKey(MOVIE_PARAM)){
+            if (bundle != null && bundle.containsKey(MOVIE_PARAM)) {
                 mMovie = bundle.getParcelable(MOVIE_PARAM);
                 updateContent(mMovie);
-            }else if(getActivity().getIntent() != null && getActivity().getIntent().hasExtra(getActivity().getString(R.string.movie_intent_tag))) {
+            } else if (getActivity().getIntent() != null && getActivity().getIntent().hasExtra(getActivity().getString(R.string.movie_intent_tag))) {
                 mMovie = (Movie) getActivity().getIntent().getParcelableExtra(getActivity().getString(R.string.movie_intent_tag));
                 updateContent(mMovie);
             }
         }
+        new ObtainDataTask(getActivity(),this).execute(mMovie.getId());
     }
 
     @Override
@@ -129,7 +130,6 @@ public class MovieDetailFragment extends Fragment {
         outState.putParcelable(MOVIE_PARAM, mMovie);
         super.onSaveInstanceState(outState);
     }
-
 
     //    Managing configuration changes to show or not toolbar navigation button
     @Override
@@ -154,4 +154,14 @@ public class MovieDetailFragment extends Fragment {
         releaseDateTev.setText(movie.getReleaseDate());
     }
 
+    @Override
+    public void onApiTaskDone(ArrayList<Review> reviews, ArrayList<Trailer> trailers) {
+        for(Review review: reviews){
+            Log.d("RBM","Review => "+review.getAuthor());
+        }
+
+        for(Trailer trailer: trailers){
+            Log.d("RBM","Trailer => "+trailer.getSource());
+        }
+    }
 }

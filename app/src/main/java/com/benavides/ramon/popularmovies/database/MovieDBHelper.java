@@ -13,7 +13,7 @@ import com.benavides.ramon.popularmovies.R;
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 1;
 
     public static final String DATABASE_NAME = "movies.db";
 
@@ -45,30 +45,31 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " TEXT NOT NULL, " +
                 MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " TEXT NOT NULL, " +
                 "UNIQUE (" + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " , " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " )," +
-                "FOREIGN KEY (" + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + ") REFERENCES " + MoviesContract.CategoryEntry.TABLE_NAME + " (" + MoviesContract.CategoryEntry._ID + ") ," +
-                "FOREIGN KEY (" + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + ") REFERENCES " + MoviesContract.MovieEntry.TABLE_NAME + " (" + MoviesContract.MovieEntry._ID + "));";
+                "FOREIGN KEY (" + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + ") REFERENCES " + MoviesContract.CategoryEntry.TABLE_NAME + " (" + MoviesContract.CategoryEntry._ID + ") ON DELETE CASCADE ," +
+                "FOREIGN KEY (" + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + ") REFERENCES " + MoviesContract.MovieEntry.TABLE_NAME + " (" + MoviesContract.MovieEntry._ID + ") ON DELETE CASCADE);";
 
         final String SQL_CREATE_REVIEWS_TABLE = "CREATE TABLE " + MoviesContract.ReviewEntry.TABLE_NAME + " (" +
-                MoviesContract.ReviewEntry._ID + " INTEGER PRIMARY KEY, " +
+                MoviesContract.ReviewEntry._ID + " TEXT PRIMARY KEY, " +
                 MoviesContract.ReviewEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
                 MoviesContract.ReviewEntry.COLUMN_CONTENT + " TEXT NOT NULL, " +
                 MoviesContract.ReviewEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
                 "UNIQUE ( " + MoviesContract.ReviewEntry._ID + " , " + MoviesContract.ReviewEntry.COLUMN_MOVIE_ID + " ), " +
-                "FOREIGN KEY ( " + MoviesContract.ReviewEntry.COLUMN_MOVIE_ID + " ) REFERENCES " + MoviesContract.MovieEntry.TABLE_NAME + " (" + MoviesContract.MovieEntry._ID + "));";
+                "FOREIGN KEY ( " + MoviesContract.ReviewEntry.COLUMN_MOVIE_ID + " ) REFERENCES " + MoviesContract.MovieEntry.TABLE_NAME + " (" + MoviesContract.MovieEntry._ID + ") ON DELETE CASCADE);";
 
         final String SQL_CREATE_TRAILERS_TABLE = "CREATE TABLE " + MoviesContract.TrailerEntry.TABLE_NAME + " (" +
-                MoviesContract.TrailerEntry._ID + " INTEGER PRIMARY KEY, " +
+                MoviesContract.TrailerEntry._ID + " TEXT PRIMARY KEY, " +
                 MoviesContract.TrailerEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                 MoviesContract.TrailerEntry.COLUMN_SOURCE + " TEXT NOT NULL, " +
                 MoviesContract.TrailerEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
                 "UNIQUE ( " + MoviesContract.TrailerEntry._ID + " , " + MoviesContract.TrailerEntry.COLUMN_MOVIE_ID + " ), " +
-                "FOREIGN KEY ( " + MoviesContract.TrailerEntry.COLUMN_MOVIE_ID + " ) REFERENCES " + MoviesContract.MovieEntry.TABLE_NAME + " (" + MoviesContract.MovieEntry._ID + "));";
+                "FOREIGN KEY ( " + MoviesContract.TrailerEntry.COLUMN_MOVIE_ID + " ) REFERENCES " + MoviesContract.MovieEntry.TABLE_NAME + " (" + MoviesContract.MovieEntry._ID + ") ON DELETE CASCADE);";
 
-        db.execSQL(SQL_CREATE_REVIEWS_TABLE);
-        db.execSQL(SQL_CREATE_TRAILERS_TABLE);
+
         db.execSQL(SQL_CREATE_MOVIES_TABLE);
         db.execSQL(SQL_CREATE_CATEGORIES_TABLE);
         db.execSQL(SQL_CREATE_MOVIES_CATEGORIES_TABLE);
+        db.execSQL(SQL_CREATE_REVIEWS_TABLE);
+        db.execSQL(SQL_CREATE_TRAILERS_TABLE);
     }
 
     @Override

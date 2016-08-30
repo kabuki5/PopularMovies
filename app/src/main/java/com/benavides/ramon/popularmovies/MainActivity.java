@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity implements MovieSelectorInte
         PopularmoviesSyncAdapter.initSyncAdapter(this);
     }
 
-
+//TODO => pass movieID instead of Movie object
     @Override
     public void onMovieSelected(Movie movie) {
 

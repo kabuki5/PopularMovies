@@ -26,6 +26,8 @@ public class MoviesProvider extends ContentProvider {
     static final int MOVIES_WITH_CATEGORY = 101;
     static final int CATEGORIES = 200;
     static final int MOVIE_CATEGORY = 300;
+    static final int REVIEWS = 400;
+    static final int TRAILERS = 500;
 
     private static UriMatcher buildUriMatcher() {
         final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -35,6 +37,8 @@ public class MoviesProvider extends ContentProvider {
         uriMatcher.addURI(authority, MoviesContract.PATH_CATEGORIES, CATEGORIES);
         uriMatcher.addURI(authority, MoviesContract.PATH_MOVIES + "/*", MOVIES_WITH_CATEGORY);
         uriMatcher.addURI(authority, MoviesContract.PATH_MOVIE_CATEGORY, MOVIE_CATEGORY);
+        uriMatcher.addURI(authority, MoviesContract.PATH_REVIEWS, REVIEWS);
+        uriMatcher.addURI(authority, MoviesContract.PATH_TRAILERS, TRAILERS);
 
         return uriMatcher;
     }
@@ -89,6 +93,14 @@ public class MoviesProvider extends ContentProvider {
                 break;
             case CATEGORIES:
                 cursor = db.query(MoviesContract.CategoryEntry.TABLE_NAME, null, selection, selectionArgs, null, null, null);
+                break;
+
+            case REVIEWS:
+                cursor = db.query(MoviesContract.ReviewEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
+                break;
+
+            case TRAILERS:
+                cursor = db.query(MoviesContract.TrailerEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -163,47 +175,16 @@ public class MoviesProvider extends ContentProvider {
                 rowsDeleted = db.delete(MoviesContract.MovieCategoryEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             case MOVIE_CATEGORY:
-
                 try {
-
-                    //get ids to remove
-                    final String idsToDeleteQuery = "SELECT " + MoviesContract.MovieEntry._ID + " FROM " + MoviesContract.MovieEntry.TABLE_NAME +
+                    // delete movies
+                    final String deleteSentence = "DELETE FROM " + MoviesContract.MovieEntry.TABLE_NAME +
                             " WHERE " + MoviesContract.MovieEntry._ID + " NOT IN " +
                             "(SELECT " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME + " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " <> ?);";
 
-                    Cursor cursor = db.rawQuery(idsToDeleteQuery, selectionArgs);
-
-                    Integer[] ids = null;
-                    if (cursor != null && cursor.moveToFirst()) {
-                        ids = new Integer[cursor.getCount()];
-                        int i = 0;
-                        do {
-                            ids[i] = cursor.getInt(0);
-                            i++;
-                        } while (cursor.moveToNext());
-                    }
-                    if (ids != null) {
-                        // delete relationship
-                        final String deleteMovieCategoryRelation = "DELETE FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
-                                " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + selectionArgs[0];
-
-                        db.execSQL(deleteMovieCategoryRelation);
-
-                        // delete movies
-
-                        final String deleteNotNeededMovies = "DELETE FROM " + MoviesContract.MovieEntry.TABLE_NAME + " WHERE " + MoviesContract.MovieEntry._ID + " IN (%s);";
-
-                        String args = TextUtils.join(", ", ids);
-
-                        db.execSQL(String.format(deleteNotNeededMovies, args));
-                    }
-
-
+                    db.execSQL(deleteSentence, selectionArgs);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-
-
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
@@ -215,7 +196,12 @@ public class MoviesProvider extends ContentProvider {
         return rowsDeleted;
     }
 
+    /*  // delete relationship
+                           final String deleteMovieCategoryRelation = "DELETE FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
+                                   " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + selectionArgs[0];
 
+                           db.execSQL(deleteMovieCategoryRelation);
+   */
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -289,8 +275,38 @@ public class MoviesProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
             case MOVIE_CATEGORY:
+                return returnCount;
 
+            case REVIEWS:
+                db.beginTransaction();
+                try {
+                    for (ContentValues contentValues : values) {
+                        long res = db.insert(MoviesContract.ReviewEntry.TABLE_NAME, null, contentValues);
+                        if (res != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
 
+            case TRAILERS:
+                db.beginTransaction();
+                try {
+                    for (ContentValues contentValues : values) {
+                        long res = db.insert(MoviesContract.TrailerEntry.TABLE_NAME, null, contentValues);
+                        if (res != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
             default:
                 return super.bulkInsert(uri, values);
@@ -324,5 +340,19 @@ public class MoviesProvider extends ContentProvider {
             cursor.close();
 
         return exists;
+    }
+
+    private Integer[] getIds(Cursor cursor) {
+        Integer[] ids = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            ids = new Integer[cursor.getCount()];
+            int i = 0;
+            do {
+                ids[i] = cursor.getInt(0);
+                i++;
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return ids;
     }
 }

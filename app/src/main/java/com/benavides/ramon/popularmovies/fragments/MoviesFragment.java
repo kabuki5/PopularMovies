@@ -29,6 +29,7 @@ import com.benavides.ramon.popularmovies.database.MoviesContract;
 import com.benavides.ramon.popularmovies.interfaces.MovieSelectorInterface;
 import com.benavides.ramon.popularmovies.sync.PopularmoviesSyncAdapter;
 import com.benavides.ramon.popularmovies.utils.CursorUtils;
+import com.benavides.ramon.popularmovies.utils.DataHelper;
 import com.benavides.ramon.popularmovies.utils.Utils;
 
 import java.util.ArrayList;
@@ -97,7 +98,6 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
         mAdapter = new MoviesCursorAdapter(getActivity(), null, true);
         mGridView.setAdapter(mAdapter);
         mGridView.setOnItemClickListener(this);
-        //PopularmoviesSyncAdapter.syncImmediately(getActivity());
     }
 
     @Override
@@ -157,11 +157,6 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
 
 
     //Gridview methods
-
-    private void updateGridView(ArrayList<Movie> movies) {
-        mAdapter.swapCursor(CursorUtils.convertMovieArrayListToCursor(movies));
-    }
-
     private void updateGridView(Cursor movies) {
         mAdapter.swapCursor(movies);
     }
@@ -174,10 +169,10 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
             /* Since I have two ways to obtain data, favorites from DB and popular and top rated from API, I can't pass a cursor to DetailFragment
             * and I need homogenize with passing a Movie object instead.
             */
-            Movie movie = CursorUtils.getMovieFromCursor(cursor);
+            Movie movie = DataHelper.getMovieFromCursor(cursor);
 
             if (mCallback != null) {
-                mCallback.onMovieSelected(movie);
+                mCallback.onMovieSelected(movie);//TODO => pass movieID instead of Movie object
             }
         }
         ContentValues contentValues = new ContentValues();
