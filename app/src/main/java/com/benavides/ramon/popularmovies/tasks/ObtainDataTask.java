@@ -83,8 +83,6 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Void> {
 
         if(mCallabck!= null)
             mCallabck.onApiTaskDone(mReviews, mTrailers);
-
-        //TODO => callback to return reviews and trailers
     }
 
     private ArrayList<Review> getReviewsFromCursor(Cursor cursor) {

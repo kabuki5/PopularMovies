@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="tab_titles">
+        <item>@string/synopsis</item>
+        <item>@string/reviews</item>
+        <item>@string/trailers</item>
+    </array>
+
+    <string-array name="tab_icons">
+        <item>@drawable/ic_synopsis</item>
+        <item>@drawable/ic_reviews</item>
+        <item>@drawable/ic_trailers</item>
+    </string-array>
+
+</resources>

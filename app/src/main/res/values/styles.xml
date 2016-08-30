@@ -33,4 +33,9 @@
         <item name="android:padding">@dimen/detail_card_padding</item>
     </style>
 
+    <style name="AppTheme.SelectionDialogButton">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+
 </resources>

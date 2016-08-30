@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,7 +16,6 @@ import com.benavides.ramon.popularmovies.R;
 
 
 /**
- * Created by ramon on 21/7/16.
  */
 public class MoviesProvider extends ContentProvider {
 
@@ -73,7 +73,7 @@ public class MoviesProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         Cursor cursor;
@@ -81,8 +81,11 @@ public class MoviesProvider extends ContentProvider {
         int matchUri = mUriMatcher.match(uri);
         switch (matchUri) {
             case MOVIES:
+                cursor = db.query(MoviesContract.MovieEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
+                break;
 
-                int category = getCategoryByName(selectionArgs[0]);
+            case MOVIES_WITH_CATEGORY:
+                int category = getCategoryByName(MoviesContract.MovieEntry.getCategoryFromUri(uri));
 
 //              subquery to obtain just the movies from the category selected
                 String selectQuery = "SELECT * FROM " + MoviesContract.MovieEntry.TABLE_NAME + " WHERE " + MoviesContract.MovieEntry._ID +
@@ -91,6 +94,7 @@ public class MoviesProvider extends ContentProvider {
 
                 cursor = db.rawQuery(selectQuery, null);
                 break;
+
             case CATEGORIES:
                 cursor = db.query(MoviesContract.CategoryEntry.TABLE_NAME, null, selection, selectionArgs, null, null, null);
                 break;

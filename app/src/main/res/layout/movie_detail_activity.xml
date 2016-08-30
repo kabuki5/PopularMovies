@@ -5,8 +5,8 @@
 
     <fragment
         android:id="@+id/movie_detail_frg"
-        android:name="com.benavides.ramon.popularmovies.fragments.MovieDetailFragment"
-        class="com.benavides.ramon.popularmovies.fragments.MovieDetailFragment"
+        android:name="com.benavides.ramon.popularmovies.fragments.MovieDetailContainerFragment"
+        class="com.benavides.ramon.popularmovies.fragments.MovieDetailContainerFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

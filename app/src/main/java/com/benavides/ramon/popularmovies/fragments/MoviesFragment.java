@@ -12,27 +12,23 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.adapters.MoviesCursorAdapter;
-import com.benavides.ramon.popularmovies.data.Movie;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
-import com.benavides.ramon.popularmovies.interfaces.MovieSelectorInterface;
-import com.benavides.ramon.popularmovies.sync.PopularmoviesSyncAdapter;
-import com.benavides.ramon.popularmovies.utils.CursorUtils;
-import com.benavides.ramon.popularmovies.utils.DataHelper;
+import com.benavides.ramon.popularmovies.interfaces.MovieSelectorListener;
 import com.benavides.ramon.popularmovies.utils.Utils;
-
-import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,27 +40,26 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
 
     private static final int MOVIES_LOADER = 0;
 
-    private static final String MOVIE_PARAM = "movie_data";
     private static final String GRID_POSITION = "grv_position";
     private static final String TAG = MoviesFragment.class.getSimpleName();
 
     @BindView(R.id.movies_grv)
     GridView mGridView;
 
-    private MovieSelectorInterface mCallback;
+    private MovieSelectorListener mCallback;
     private MoviesCursorAdapter mAdapter;
-   // private MovieDataReceiver mDataReceiver;
+    // private MovieDataReceiver mDataReceiver;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mCallback = (MovieSelectorInterface) context;
+        mCallback = (MovieSelectorListener) context;
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mCallback = (MovieSelectorInterface) activity;
+        mCallback = (MovieSelectorListener) activity;
     }
 
     @Override
@@ -72,7 +67,6 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
-
 
     @Nullable
     @Override
@@ -94,6 +88,8 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        setupActionBar();
 
         mAdapter = new MoviesCursorAdapter(getActivity(), null, true);
         mGridView.setAdapter(mAdapter);
@@ -118,14 +114,14 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
             case R.id.action_sort_by:
 
                 final Dialog dialog = new Dialog(getActivity());
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 dialog.setContentView(R.layout.choose_sort_by_dialog);
                 dialog.show();
 
                 View.OnClickListener clickListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String selection = "";
-
+                        String selection;
                         int id = v.getId();
 
                         switch (id) {
@@ -137,6 +133,9 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
                                 break;
                             case R.id.favorites_dialog_button:
                                 selection = getString(R.string.favorites_low);
+                                break;
+                            default:
+                                selection = getString(R.string.popular_low);
                                 break;
                         }
 
@@ -166,18 +165,15 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
         Cursor cursor = ((Cursor) parent.getItemAtPosition(position));
 
         if (cursor != null) {
-            /* Since I have two ways to obtain data, favorites from DB and popular and top rated from API, I can't pass a cursor to DetailFragment
-            * and I need homogenize with passing a Movie object instead.
-            */
-            Movie movie = DataHelper.getMovieFromCursor(cursor);
-
             if (mCallback != null) {
-                mCallback.onMovieSelected(movie);//TODO => pass movieID instead of Movie object
+                mCallback.onMovieSelected(cursor.getInt(MoviesContract.MovieEntry.MOVIES_COLUMN_ID));
             }
         }
+
+        //TODO => to insert favorite
         ContentValues contentValues = new ContentValues();
-        DatabaseUtils.cursorRowToContentValues(cursor,contentValues);
-        getActivity().getContentResolver().insert(MoviesContract.MovieEntry.buildMoviesData(),contentValues);
+        DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
+        getActivity().getContentResolver().insert(MoviesContract.MovieEntry.buildMoviesData(), contentValues);
     }
 
 
@@ -187,9 +183,9 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
     public Loader onCreateLoader(int id, Bundle args) {
 
         String sortOrder = MoviesContract.MovieEntry.COLUMN_RATING + " DESC";
-
-        return new CursorLoader(getActivity(), MoviesContract.MovieEntry.buildMoviesData(), MoviesContract.MovieEntry.MOVIES_PROJECTION,
-                null, new String[]{Utils.readStringPreference(getActivity(), getString(R.string.sort_by_pref))}, sortOrder);
+        String category = Utils.readStringPreference(getActivity(), getString(R.string.sort_by_pref));
+        return new CursorLoader(getActivity(), MoviesContract.MovieEntry.buildMoviesDataWithCategory(category), MoviesContract.MovieEntry.MOVIES_PROJECTION,
+                null, null, sortOrder);
     }
 
     @Override
@@ -204,7 +200,26 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
     }
 
 
-     public void updateData(){
+    public void updateData() {
+        setupActionBar();
+        mGridView.smoothScrollToPosition(0);
         getLoaderManager().restartLoader(MOVIES_LOADER, null, MoviesFragment.this);
+    }
+
+
+    private void setupActionBar() {
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            String title;
+            String lastCategory = Utils.readStringPreference(getActivity(), getString(R.string.sort_by_pref));
+            if (lastCategory.equals(getString(R.string.popular_low))) {
+                title = getString(R.string.popular);
+            } else if (lastCategory.equals(getString(R.string.top_rated_low))) {
+                title = getString(R.string.top_rated);
+            } else {
+                title = getString(R.string.favorites);
+            }
+            actionBar.setTitle(title);
+        }
     }
 }

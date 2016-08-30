@@ -10,14 +10,16 @@
     <string name="user_rating">USER RATING</string>
     <string name="release_date">RELEASE DATE</string>
     <string name="sort">Sort</string>
-    <string name="popular">POPULAR</string>
-    <string name="top_rated">TOP RATED</string>
+    <string name="popular">Popular</string>
+    <string name="top_rated">Top rated</string>
     <string name="popular_low">popular</string>
     <string name="top_rated_low">top_rated</string>
     <string name="shared_prefs_name">shared_prefs</string>
     <string name="sort_by_pref">sort_by</string>
-    <string name="favorites">FAVORITES</string>
+    <string name="favorites">Favorites</string>
     <string name="favorites_low">favorites</string>
-    <string name="sync_account_type">com.benavides.ramon.popular_movies</string>
-    <string name="content_authority">com.benavides.ramon.popularmovies</string>
+    <string name="sync_account_type" translatable="false" >com.benavides.ramon.popular_movies</string>
+    <string name="content_authority" translatable="false">com.benavides.ramon.popularmovies</string>
+    <string name="reviews">REVIEWS</string>
+    <string name="trailers">TRAILERS</string>
 </resources>
