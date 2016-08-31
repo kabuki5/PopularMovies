@@ -33,7 +33,6 @@
 
                 <TextView
                     android:id="@+id/synopsis_tev"
-                    style="@style/AppTheme.DetailSectionDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
@@ -60,7 +59,6 @@
 
                 <TextView
                     android:id="@+id/user_rating_tev"
-                    style="@style/AppTheme.DetailSectionDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -87,7 +85,6 @@
 
                 <TextView
                     android:id="@+id/release_date_tev"
-                    style="@style/AppTheme.DetailSectionDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>

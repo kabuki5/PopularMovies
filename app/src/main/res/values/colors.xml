@@ -5,6 +5,9 @@
     <color name="colorAccent">#f9f0f3</color>
     <color name="greyCard">#dfdfdf</color>
 
+    <color name="colorPrimaryAlpha">#e01b1b1d</color>
+
+
     <color name="transparent">#00000000</color>
 
     <!-- card colors -->

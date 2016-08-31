@@ -31,9 +31,14 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Void> {
     private ArrayList<Review> mReviews;
     private ArrayList<Trailer> mTrailers;
 
-    public ObtainDataTask(Context context, DataTaskListener callback) {
+    public static final int TYPE_REVIEWS = 1;
+    public static final int TYPE_TRAILERS = 2;
+    private final int mType;
+
+    public ObtainDataTask(Context context, DataTaskListener callback, int type ) {
         this.mContext = context;
         this.mCallabck = callback;
+        this.mType = type;
     }
 
     @Override
@@ -46,34 +51,18 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Void> {
     @Override
     protected Void doInBackground(Integer... params) {
 
-        /**
-         * 1st- Check into database if I have movie's reviews and trailers.
-         * yes- return from database
-         * no- retrieve from API and store into database
-         */
-
-    // requesting database for reviews
-        Cursor reviewCursor = mContext.getContentResolver().query(MoviesContract.ReviewEntry.buildReviewData(), MoviesContract.ReviewEntry.REVIEW_PROJECTION,
-                MoviesContract.ReviewEntry.COLUMN_MOVIE_ID + " =?", new String[]{Integer.toString(params[0])}, null);
-
-        if (reviewCursor != null && reviewCursor.getCount() > 0) {//there are reviews for this movie
-            mReviews = getReviewsFromCursor(reviewCursor);
-        } else {//no reviews found, so request API and store it into database
-            ContentValues[] reviews = retrieveReviews(params[0]);
-            mContext.getContentResolver().bulkInsert(MoviesContract.ReviewEntry.buildReviewData(), reviews);
-        }
-
-    // requesting database for trailers
-        Cursor trailerCursor = mContext.getContentResolver().query(MoviesContract.TrailerEntry.buildTrailerData(), MoviesContract.TrailerEntry.TRAILER_PROJECTION,
-                MoviesContract.TrailerEntry.COLUMN_MOVIE_ID + " =?", new String[]{Integer.toString(params[0])}, null);
-
-        if (trailerCursor != null && trailerCursor.moveToFirst()) {//there are trailers for this movie
-            mTrailers = getTrailersFromCursor(trailerCursor);
-        } else { // no trailers, so request API and store it into database
-            ContentValues[] trailers = retrieveTrailers(params[0]);
-            mContext.getContentResolver().bulkInsert(MoviesContract.TrailerEntry.buildTrailerData(), trailers);
-        }
-
+            switch (mType){
+                case TYPE_REVIEWS:
+                    ContentValues[] reviews = retrieveReviews(params[0]);
+                    if(reviews!=null && reviews.length>0)
+                        mContext.getContentResolver().bulkInsert(MoviesContract.ReviewEntry.buildReviewData(), reviews);
+                    break;
+                case TYPE_TRAILERS:
+                    ContentValues[] trailers = retrieveTrailers(params[0]);
+                    if(trailers!=null && trailers.length>0)
+                        mContext.getContentResolver().bulkInsert(MoviesContract.TrailerEntry.buildTrailerData(), trailers);
+                    break;
+            }
         return null;
     }
 
@@ -81,40 +70,10 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Void> {
     protected void onPostExecute(Void value) {
         super.onPostExecute(value);
 
-        if(mCallabck!= null)
-            mCallabck.onApiTaskDone(mReviews, mTrailers);
-    }
-
-    private ArrayList<Review> getReviewsFromCursor(Cursor cursor) {
-        ArrayList<Review> result = new ArrayList<>();
-        if(cursor.moveToFirst()){
-            do{
-                Review review = new Review();
-                review.setId(cursor.getString(MoviesContract.ReviewEntry.REVIEWS_COLUMN_ID));
-                review.setAuthor(cursor.getString(MoviesContract.ReviewEntry.REVIEWS_COLUMN_AUTHOR));
-                review.setContent(cursor.getString(MoviesContract.ReviewEntry.REVIEWS_COLUMN_CONTENT));
-                review.setMovieId(cursor.getInt(MoviesContract.ReviewEntry.REVIEWS_COLUMN_MOVIE_ID));
-                result.add(review);
-            }while(cursor.moveToNext());
+        if(mCallabck!= null){
+            mCallabck.onDataRetrieved();
         }
-        return result;
     }
-
-    private ArrayList<Trailer> getTrailersFromCursor(Cursor cursor) {
-        ArrayList<Trailer> result = new ArrayList<>();
-        if(cursor.moveToFirst()){
-            do{
-                Trailer trailer = new Trailer();
-                trailer.setId(cursor.getString(MoviesContract.TrailerEntry.TRAILER_COLUMN_ID));
-                trailer.setName(cursor.getString(MoviesContract.TrailerEntry.TRAILER_COLUMN_NAME));
-                trailer.setSource(cursor.getString(MoviesContract.TrailerEntry.TRAILER_COLUMN_SOURCE));
-                trailer.setMovieID(cursor.getInt(MoviesContract.TrailerEntry.TRAILER_COLUMN_MOVIE_ID));
-                result.add(trailer);
-            }while(cursor.moveToNext());
-        }
-        return result;
-    }
-
 
     private ContentValues[] retrieveReviews(int movieId) {
         HttpURLConnection urlConnection = null;

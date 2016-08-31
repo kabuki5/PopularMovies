@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements MovieSelectorList
     public void onContentChanged(String title, String backdropURL) {
         MovieDetailContainerFragment frg = ((MovieDetailContainerFragment) getSupportFragmentManager().findFragmentByTag(DETAIL_FRG_TAG));
         if(frg != null){
-            frg.updateContent(title,backdropURL);
+            frg.updateHeader(title,backdropURL);
         }
     }
 }

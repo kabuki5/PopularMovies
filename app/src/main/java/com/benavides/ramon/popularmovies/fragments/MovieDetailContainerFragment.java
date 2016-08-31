@@ -1,6 +1,9 @@
 package com.benavides.ramon.popularmovies.fragments;
 
+import android.content.ContentValues;
 import android.content.res.TypedArray;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -20,6 +23,7 @@ import android.widget.TextView;
 import com.benavides.ramon.popularmovies.MovieDetailActivity;
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.adapters.SectionsPagerAdapter;
+import com.benavides.ramon.popularmovies.database.MoviesContract;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -35,6 +39,8 @@ public class MovieDetailContainerFragment extends Fragment {
     private static final int FRG_DETAIL = 0;
     private static final int FRG_REVIEWS = 1;
     private static final int FRG_TRAILERS = 2;
+    private static final String TITLE_PARAM = "title";
+    private static final String BACKDROP_PARAM = "backdrop";
 
     @BindView(R.id.collapsing_toolbar_layout)
     CollapsingToolbarLayout collapsingToolbarLayout;
@@ -50,14 +56,28 @@ public class MovieDetailContainerFragment extends Fragment {
     @BindView(R.id.tab_layout)
     TabLayout mTabLayout;
 
+    private String mTitle;
+    private String mBackdrop;
+    private Fragment[] mFragments;
+    private int movieID;
+
 
     public static MovieDetailContainerFragment newInstance(int movie) {
-
         Bundle args = new Bundle();
         args.putInt(MOVIE_PARAM, movie);
         MovieDetailContainerFragment fragment = new MovieDetailContainerFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            String title = savedInstanceState.getString(TITLE_PARAM);
+            String backdrop = savedInstanceState.getString(BACKDROP_PARAM);
+            updateHeader(title, backdrop);
+        }
     }
 
     @Nullable
@@ -72,7 +92,6 @@ public class MovieDetailContainerFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        int movieID;
         if (getArguments() != null)
             movieID = getArguments().getInt(MOVIE_PARAM);
         else {// from intent
@@ -106,9 +125,7 @@ public class MovieDetailContainerFragment extends Fragment {
             }
         });
 
-
-//     Setting up tab viewpager
-
+        //     Setting up tab viewpager
         SectionsPagerAdapter mAdapter = new SectionsPagerAdapter(getActivity().getSupportFragmentManager(), initFragments(movieID));
 
         mViewpager.setAdapter(mAdapter);
@@ -122,7 +139,7 @@ public class MovieDetailContainerFragment extends Fragment {
         TypedArray images = getResources().obtainTypedArray(R.array.tab_icons);
         String[] titles = getResources().getStringArray(R.array.tab_titles);
 
-           for (int i = 0; i < mTabLayout.getTabCount(); i++) {
+        for (int i = 0; i < mTabLayout.getTabCount(); i++) {
             View view = LayoutInflater.from(getActivity()).inflate(R.layout.view_tab, null);
             TabLayout.Tab tab = mTabLayout.getTabAt(i);
             if (tab != null) {
@@ -134,15 +151,25 @@ public class MovieDetailContainerFragment extends Fragment {
     }
 
     private Fragment[] initFragments(int movieID) {
-        Fragment[] mFragments = new Fragment[MAX_FRGS];
-        mFragments[FRG_DETAIL] = MovieSynopsisFragment.newInstance(movieID);
+        mFragments = new Fragment[MAX_FRGS];
+        mFragments[FRG_DETAIL] = SynopsisFragment.newInstance(movieID);
         mFragments[FRG_REVIEWS] = ReviewsFragment.newInstance(movieID);
         mFragments[FRG_TRAILERS] = TrailersFragment.newInstance(movieID);
 
         return mFragments;
     }
 
-    public void updateContent(String title, String backdropURL) {
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(TITLE_PARAM, mTitle);
+        outState.putString(BACKDROP_PARAM, mBackdrop);
+        super.onSaveInstanceState(outState);
+    }
+
+    public void updateHeader(String title, String backdropURL) {
+        mTitle = title;
+        mBackdrop = backdropURL;
+
         collapsingToolbarLayout.setTitle(title);
 
         Picasso.with(getActivity())
@@ -151,6 +178,15 @@ public class MovieDetailContainerFragment extends Fragment {
                 //.error(R.drawable.exclamation)
                 .into(backdropImv);
     }
+
+    private void addRemoveFavorite(Cursor cursor) {
+        //TODO => to insert favorite
+        ContentValues contentValues = new ContentValues();
+        DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
+        getActivity().getContentResolver().insert(MoviesContract.MovieEntry.buildMoviesData(), contentValues);
+    }
+
+
 
 
 }

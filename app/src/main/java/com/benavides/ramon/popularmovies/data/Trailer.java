@@ -1,8 +1,5 @@
 package com.benavides.ramon.popularmovies.data;
 
-/**
- * Created by Ramon on 29/08/2016.
- */
 public class Trailer {
 
     private final static String YOUTUBE_PATH = "https://www.youtube.com/watch?v=";

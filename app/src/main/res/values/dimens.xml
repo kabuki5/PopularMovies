@@ -8,4 +8,7 @@
     <dimen name="movie_item_height">260dp</dimen>
     <dimen name="detail_img_height">200dp</dimen>
     <dimen name="detail_card_padding">10dp</dimen>
+    <dimen name="dimen_review_liv_space_between">10dp</dimen>
+    <dimen name="item_trailer_name_height">60dp</dimen>
+    <dimen name="item_trailer_name_padding">10dp</dimen>
 </resources>

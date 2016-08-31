@@ -22,4 +22,5 @@
     <string name="content_authority" translatable="false">com.benavides.ramon.popularmovies</string>
     <string name="reviews">REVIEWS</string>
     <string name="trailers">TRAILERS</string>
+    <string name="author">Author:</string>
 </resources>

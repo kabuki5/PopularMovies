@@ -1,8 +1,5 @@
 package com.benavides.ramon.popularmovies.data;
 
-/**
- * Created by Ramon on 29/08/2016.
- */
 public class Review {
     private String id;
     private String author;

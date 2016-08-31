@@ -21,11 +21,11 @@ import java.text.NumberFormat;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-/**
 
- */
-public class MovieSynopsisFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class SynopsisFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor>  {
     private static final int MOVIE_LOADER = 1;
+
+    private DetailContentChangeListener mCallback;
 
     @BindView(R.id.synopsis_tev)
     TextView synopsisTev;
@@ -34,34 +34,27 @@ public class MovieSynopsisFragment extends BaseFragment implements LoaderManager
     @BindView(R.id.release_date_tev)
     TextView releaseDateTev;
 
-    private int mMovieId;
+    private int movieID;
 
-    private DetailContentChangeListener mCallback;
-
-    public static MovieSynopsisFragment newInstance(int movieID) {
+    public static SynopsisFragment newInstance(int movieID) {
         Bundle args = new Bundle();
         args.putInt(MOVIE_PARAM, movieID);
-        MovieSynopsisFragment fragment = new MovieSynopsisFragment();
+        SynopsisFragment fragment = new SynopsisFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mCallback = (DetailContentChangeListener) context;
-    }
-
-    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        getLoaderManager().initLoader(MOVIE_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
+        movieID = getArguments().getInt(MOVIE_PARAM);
+        getLoaderManager().initLoader(MOVIE_LOADER, null, this);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.view_description_frg, container, false);
+        View view = inflater.inflate(R.layout.view_synopsis_frg, container, false);
         ButterKnife.bind(this, view);
         return view;
     }
@@ -69,19 +62,17 @@ public class MovieSynopsisFragment extends BaseFragment implements LoaderManager
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+    }
 
-        mMovieId = getArguments().getInt(MOVIE_PARAM);
-
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallback = (DetailContentChangeListener)context;
     }
 
     //Populate content
-    public void updateContent(Cursor cursor) {
+    public void populateContent(Cursor cursor) {
         if (cursor != null && cursor.moveToFirst()) {
-
-            if(mCallback!=null)
-                mCallback.onContentChanged(cursor.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_TITLE),
-                        cursor.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_BACKDROP));
-
             synopsisTev.setText(cursor.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_SYNOPSIS));
             userRatingTev.setText(NumberFormat.getNumberInstance().format(cursor.getDouble(MoviesContract.MovieEntry.MOVIES_COLUMN_RATING)));
             releaseDateTev.setText(cursor.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_RELEASE_DATE));
@@ -95,17 +86,24 @@ public class MovieSynopsisFragment extends BaseFragment implements LoaderManager
     }
 
 
-// Loader methods
+    // Loader methods
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(), MoviesContract.MovieEntry.buildMoviesData(), MoviesContract.MovieEntry.MOVIES_PROJECTION,
-                MoviesContract.MovieEntry._ID + " =?", new String[]{Integer.toString(mMovieId)}, null);
+                MoviesContract.MovieEntry._ID + " =?", new String[]{Integer.toString(movieID)}, null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        updateContent(data);
+        if (data != null && data.getCount() > 0) {
+            if(data.moveToFirst()){
+                if(mCallback!=null)
+                    mCallback.onContentChanged(data.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_TITLE),
+                            data.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_BACKDROP));
+                populateContent(data);
+            }
+        }
     }
 
     @Override

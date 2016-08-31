@@ -9,6 +9,5 @@ import java.util.ArrayList;
  * Created by Ramon on 30/08/2016.
  */
 public interface DataTaskListener {
-
-    void onApiTaskDone(ArrayList<Review> reviews, ArrayList<Trailer> trailers);
+    void onDataRetrieved();
 }

@@ -169,11 +169,6 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
                 mCallback.onMovieSelected(cursor.getInt(MoviesContract.MovieEntry.MOVIES_COLUMN_ID));
             }
         }
-
-        //TODO => to insert favorite
-        ContentValues contentValues = new ContentValues();
-        DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
-        getActivity().getContentResolver().insert(MoviesContract.MovieEntry.buildMoviesData(), contentValues);
     }
 
 

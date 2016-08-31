@@ -155,4 +155,34 @@ public class DataHelper {
         }
         return contentValues;
     }
+
+    public static ArrayList<Review> getReviewsFromCursor(Cursor cursor) {
+        ArrayList<Review> result = new ArrayList<>();
+        if(cursor.moveToFirst()){
+            do{
+                Review review = new Review();
+                review.setId(cursor.getString(MoviesContract.ReviewEntry.REVIEWS_COLUMN_ID));
+                review.setAuthor(cursor.getString(MoviesContract.ReviewEntry.REVIEWS_COLUMN_AUTHOR));
+                review.setContent(cursor.getString(MoviesContract.ReviewEntry.REVIEWS_COLUMN_CONTENT));
+                review.setMovieId(cursor.getInt(MoviesContract.ReviewEntry.REVIEWS_COLUMN_MOVIE_ID));
+                result.add(review);
+            }while(cursor.moveToNext());
+        }
+        return result;
+    }
+
+    public static ArrayList<Trailer> getTrailersFromCursor(Cursor cursor) {
+        ArrayList<Trailer> result = new ArrayList<>();
+        if(cursor.moveToFirst()){
+            do{
+                Trailer trailer = new Trailer();
+                trailer.setId(cursor.getString(MoviesContract.TrailerEntry.TRAILER_COLUMN_ID));
+                trailer.setName(cursor.getString(MoviesContract.TrailerEntry.TRAILER_COLUMN_NAME));
+                trailer.setSource(cursor.getString(MoviesContract.TrailerEntry.TRAILER_COLUMN_SOURCE));
+                trailer.setMovieID(cursor.getInt(MoviesContract.TrailerEntry.TRAILER_COLUMN_MOVIE_ID));
+                result.add(trailer);
+            }while(cursor.moveToNext());
+        }
+        return result;
+    }
 }
