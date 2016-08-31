@@ -2,8 +2,8 @@ package com.benavides.ramon.popularmovies.tasks;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.data.Review;
@@ -24,60 +24,67 @@ import java.util.ArrayList;
 /**
  * Works checking cached data into database first
  */
-public class ObtainDataTask extends AsyncTask<Integer, Void, Void> {
+public class ObtainDataTask extends AsyncTask<Integer, Void, Boolean> {
+
+    private static final String TAG = ObtainDataTask.class.getSimpleName();
 
     private Context mContext;
-    private DataTaskListener mCallabck;
-    private ArrayList<Review> mReviews;
-    private ArrayList<Trailer> mTrailers;
+    private DataTaskListener mCallback;
 
     public static final int TYPE_REVIEWS = 1;
     public static final int TYPE_TRAILERS = 2;
     private final int mType;
 
-    public ObtainDataTask(Context context, DataTaskListener callback, int type ) {
+    public ObtainDataTask(Context context, DataTaskListener callback, int type) {
         this.mContext = context;
-        this.mCallabck = callback;
+        this.mCallback = callback;
         this.mType = type;
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        mReviews = new ArrayList<>();
-        mTrailers = new ArrayList<>();
     }
 
     @Override
-    protected Void doInBackground(Integer... params) {
+    protected Boolean doInBackground(Integer... params) {
 
-            switch (mType){
-                case TYPE_REVIEWS:
-                    ContentValues[] reviews = retrieveReviews(params[0]);
-                    if(reviews!=null && reviews.length>0)
-                        mContext.getContentResolver().bulkInsert(MoviesContract.ReviewEntry.buildReviewData(), reviews);
-                    break;
-                case TYPE_TRAILERS:
-                    ContentValues[] trailers = retrieveTrailers(params[0]);
-                    if(trailers!=null && trailers.length>0)
-                        mContext.getContentResolver().bulkInsert(MoviesContract.TrailerEntry.buildTrailerData(), trailers);
-                    break;
-            }
-        return null;
+
+
+        switch (mType) {
+            case TYPE_REVIEWS:
+                Log.d(TAG,"requesting API to get reviews");
+                ContentValues[] reviews = retrieveReviews(params[0]);
+                if (reviews != null && reviews.length > 0) {
+                    mContext.getContentResolver().bulkInsert(MoviesContract.ReviewEntry.buildReviewData(), reviews);
+                    return true;
+                }else{
+                    return false;
+                }
+            case TYPE_TRAILERS:
+                Log.d(TAG,"requesting API to get trailers");
+                ContentValues[] trailers = retrieveTrailers(params[0]);
+                if (trailers != null && trailers.length > 0) {
+                    mContext.getContentResolver().bulkInsert(MoviesContract.TrailerEntry.buildTrailerData(), trailers);
+                    return true;
+                }else{
+                    return false;
+                }
+        }
+        return false;
     }
 
     @Override
-    protected void onPostExecute(Void value) {
+    protected void onPostExecute(Boolean value) {
         super.onPostExecute(value);
-
-        if(mCallabck!= null){
-            mCallabck.onDataRetrieved();
+        if (mCallback != null) {
+            mCallback.onDataRetrieved(value);
         }
     }
 
     private ContentValues[] retrieveReviews(int movieId) {
         HttpURLConnection urlConnection = null;
-
+        ArrayList<Review> mReviews = new ArrayList<>();
         try {
             //Composing url to request data
             URL url = new URL(mContext.getString(R.string.tmdb_api_url) + movieId + "/reviews" + mContext.getString(R.string.tmdb_api_key));
@@ -108,7 +115,7 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Void> {
     private ContentValues[] retrieveTrailers(int movieId) {
 
         HttpURLConnection urlConnection = null;
-
+        ArrayList<Trailer> mTrailers = new ArrayList<>();;
         try {
             //Composing url to request data
             URL url = new URL(mContext.getString(R.string.tmdb_api_url) + movieId + "/videos" + mContext.getString(R.string.tmdb_api_key));

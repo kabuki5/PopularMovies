@@ -8,5 +8,6 @@
     <dimen name="detail_img_height">400dp</dimen>
     <dimen name="detail_card_padding">25dp</dimen>
     <dimen name="dimen_review_liv_space_between">10dp</dimen>
+    <dimen name="dimen_no_data_cloud_size">350dp</dimen>
 
 </resources>

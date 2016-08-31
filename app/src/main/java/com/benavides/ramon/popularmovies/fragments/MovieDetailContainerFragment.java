@@ -30,7 +30,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Contain CoordinatorLayout with viewpager
+ * Contains CoordinatorLayout with viewpager
  */
 public class MovieDetailContainerFragment extends Fragment {
 
@@ -143,7 +143,7 @@ public class MovieDetailContainerFragment extends Fragment {
             View view = LayoutInflater.from(getActivity()).inflate(R.layout.view_tab, null);
             TabLayout.Tab tab = mTabLayout.getTabAt(i);
             if (tab != null) {
-                ((ImageView) view.findViewById(R.id.tab_view_img)).setImageResource(images.getResourceId(i, R.drawable.ic_movie));
+                ((ImageView) view.findViewById(R.id.tab_view_img)).setImageResource(images.getResourceId(i, R.mipmap.ic_launcher));
                 ((TextView) view.findViewById(R.id.tab_view_txt)).setText(titles[i]);
                 tab.setCustomView(view);
             }

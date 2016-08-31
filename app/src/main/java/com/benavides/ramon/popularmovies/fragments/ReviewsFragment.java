@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,8 @@ public class ReviewsFragment extends BaseFragment implements LoaderManager.Loade
 
     @BindView(R.id.reviews_liv)
     ListView mLiv;
+
+    private NestedScrollView mNoDataView;
 
     private ReviewsCursorAdapter mAdapter;
 
@@ -58,6 +61,8 @@ public class ReviewsFragment extends BaseFragment implements LoaderManager.Loade
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mNoDataView = (NestedScrollView)view.findViewById(R.id.no_data_view);
+
         mAdapter = new ReviewsCursorAdapter(getActivity(), null, true);
         mLiv.setAdapter(mAdapter);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -93,9 +98,13 @@ public class ReviewsFragment extends BaseFragment implements LoaderManager.Loade
 
     //  DataTaskListener method
     @Override
-    public void onDataRetrieved() {
-        if(isAdded())
+    public void onDataRetrieved(boolean hasReceiveData) {
+        if(isAdded() && hasReceiveData) {
+            mNoDataView.setVisibility(View.GONE);
             getLoaderManager().restartLoader(REVIEWS_LOADER, null, this);
+        }else if(!hasReceiveData){
+            mNoDataView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void populateContent(Cursor data) {

@@ -2,6 +2,9 @@ package com.benavides.ramon.popularmovies.fragments;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
@@ -10,11 +13,13 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
 import com.benavides.ramon.popularmovies.interfaces.DetailContentChangeListener;
+import com.benavides.ramon.popularmovies.utils.Utils;
 
 import java.text.NumberFormat;
 
@@ -29,8 +34,8 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
 
     @BindView(R.id.synopsis_tev)
     TextView synopsisTev;
-    @BindView(R.id.user_rating_tev)
-    TextView userRatingTev;
+    @BindView(R.id.rating_bar)
+    RatingBar userRatingBar;
     @BindView(R.id.release_date_tev)
     TextView releaseDateTev;
 
@@ -62,6 +67,9 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        Drawable drawable =  userRatingBar.getProgressDrawable();
+        drawable.setColorFilter(getResources().getColor(R.color.gold), PorterDuff.Mode.SRC_ATOP);
     }
 
     @Override
@@ -74,8 +82,8 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
     public void populateContent(Cursor cursor) {
         if (cursor != null && cursor.moveToFirst()) {
             synopsisTev.setText(cursor.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_SYNOPSIS));
-            userRatingTev.setText(NumberFormat.getNumberInstance().format(cursor.getDouble(MoviesContract.MovieEntry.MOVIES_COLUMN_RATING)));
-            releaseDateTev.setText(cursor.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_RELEASE_DATE));
+            userRatingBar.setRating(((float)cursor.getDouble(MoviesContract.MovieEntry.MOVIES_COLUMN_RATING))/2);
+            releaseDateTev.setText(Utils.formatReleaseDate(cursor.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_RELEASE_DATE)));
         }
     }
 

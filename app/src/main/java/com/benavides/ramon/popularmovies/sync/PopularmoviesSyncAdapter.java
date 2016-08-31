@@ -72,35 +72,6 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
                 // insert data into database
                 context.getContentResolver().bulkInsert(MoviesContract.MovieEntry.buildMoviesDataWithCategory(movieCategory), movieValues);
-
-                /*
-                ContentValues[] reviews = null;
-                ContentValues[] trailers = null;
-
-                for (int i = 0; i < movieValues.length; i++) {
-                    int id = movieValues[i].getAsInteger(MoviesContract.MovieEntry._ID);
-
-                    if (reviews == null) {
-                        reviews = retrieveReviews(id);
-                    } else {
-                        reviews = ArrayUtils.addAll(reviews, retrieveReviews(id));
-                    }
-
-                    if (trailers == null) {
-                        trailers = retrieveTrailers(id);
-                    } else {
-                        trailers = ArrayUtils.addAll(trailers, retrieveTrailers(id));
-                    }
-                }
-
-
-
-                // insert reviews into database
-                if (reviews != null)
-                    context.getContentResolver().bulkInsert(MoviesContract.ReviewEntry.buildReviewData(), reviews);
-                // insert trailers into database
-                if (trailers != null)
-                    context.getContentResolver().bulkInsert(MoviesContract.TrailerEntry.buildTrailerData(),trailers );*/
             }
         }
         notifySync();
@@ -113,8 +84,8 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getContext())
                         .setColor(getContext().getResources().getColor(R.color.colorPrimary))
-                        .setSmallIcon(R.drawable.ic_movie)
-                        .setLargeIcon(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ic_movie))
+                        .setSmallIcon(R.drawable.ic_notification)
+                        .setLargeIcon(BitmapFactory.decodeResource(getContext().getResources(), R.mipmap.ic_launcher))
                         .setContentTitle(getContext().getString(R.string.app_name))
                         .setContentText("Popular Movies Updated database");
 

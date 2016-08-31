@@ -14,7 +14,7 @@ import com.benavides.ramon.popularmovies.database.MoviesContract;
 import com.squareup.picasso.Picasso;
 
 /**
- * Created by ramon on 23/7/16.
+ * Function:
  */
 public class MoviesCursorAdapter extends CursorAdapter {
 

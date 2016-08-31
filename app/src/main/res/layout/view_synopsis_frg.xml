@@ -7,90 +7,57 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-
-    <LinearLayout
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:layout_margin="10dp">
 
-
-        <android.support.v7.widget.CardView
+        <LinearLayout
+            style="@style/AppTheme.DetailCardLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp">
+            android:orientation="vertical">
+
+            <RatingBar
+                android:id="@+id/rating_bar"
+                style="@style/AppTheme.Ratingbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:stepSize="0.1" />
 
             <LinearLayout
-                style="@style/AppTheme.DetailCardLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
                 <TextView
+                    android:layout_weight="1"
                     style="@style/AppTheme.DetailSectionTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/synopsis" />
-
-                <TextView
-                    android:id="@+id/synopsis_tev"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="10dp">
-
-            <LinearLayout
-                style="@style/AppTheme.DetailCardLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                    android:text="@string/synopsis_low" />
 
                 <TextView
                     style="@style/AppTheme.DetailSectionTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/user_rating" />
-
-                <TextView
-                    android:id="@+id/user_rating_tev"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-
-
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="10dp">
-
-            <LinearLayout
-                style="@style/AppTheme.DetailCardLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <TextView
-                    style="@style/AppTheme.DetailSectionTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/release_date" />
-
-                <TextView
+                    android:gravity="end"
+                    android:layout_weight="1"
                     android:id="@+id/release_date_tev"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
+
             </LinearLayout>
 
-        </android.support.v7.widget.CardView>
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/synopsis_tev"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
 
 </android.support.v4.widget.NestedScrollView>

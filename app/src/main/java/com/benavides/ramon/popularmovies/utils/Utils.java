@@ -65,4 +65,16 @@ public class Utils {
         editor.apply();
     }
 
+    //Return just the year
+    public static String formatReleaseDate(String date) throws ArrayIndexOutOfBoundsException{
+        String[] splitted = date.split("-");
+       /* StringBuilder sb = new StringBuilder();
+        sb.append(splitted[1]);
+        sb.append("-");
+        sb.append(splitted[2]);
+        sb.append("-");
+        sb.append(splitted[0]);*/
+        return splitted[0];
+    }
+
 }

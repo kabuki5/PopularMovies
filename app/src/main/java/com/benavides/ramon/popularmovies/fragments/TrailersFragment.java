@@ -9,15 +9,16 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.adapters.TrailersCursorAdapter;
-import com.benavides.ramon.popularmovies.data.Trailer;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
 import com.benavides.ramon.popularmovies.interfaces.DataTaskListener;
 import com.benavides.ramon.popularmovies.tasks.ObtainDataTask;
@@ -33,6 +34,8 @@ public class TrailersFragment extends BaseFragment implements LoaderManager.Load
 
     @BindView(R.id.trailers_liv)
     ListView mLiv;
+
+    NestedScrollView mNoDataView;
 
     public static TrailersFragment newInstance(int movieId) {
 
@@ -62,6 +65,8 @@ public class TrailersFragment extends BaseFragment implements LoaderManager.Load
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mNoDataView = (NestedScrollView)view.findViewById(R.id.no_data_view);
+
         mAdapter = new TrailersCursorAdapter(getActivity(), null, true);
         mLiv.setAdapter(mAdapter);
         mLiv.setOnItemClickListener(this);
@@ -98,9 +103,13 @@ public class TrailersFragment extends BaseFragment implements LoaderManager.Load
 
     //  DataTaskListener method
     @Override
-    public void onDataRetrieved() {
-        if(isAdded())
+    public void onDataRetrieved(boolean hasReceiveData) {
+        if (isAdded() && hasReceiveData) {
+            mNoDataView.setVisibility(View.GONE);
             getLoaderManager().restartLoader(TRAILERS_LOADER, null, this);
+        } else if (!hasReceiveData) {
+            mNoDataView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void populateContent(Cursor data) {
@@ -111,7 +120,7 @@ public class TrailersFragment extends BaseFragment implements LoaderManager.Load
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Cursor cursor = ((Cursor) parent.getItemAtPosition(position));
-        if(cursor!=null){
+        if (cursor != null) {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(cursor.getString(MoviesContract.TrailerEntry.TRAILER_COLUMN_SOURCE)));
             startActivity(intent);
         }
