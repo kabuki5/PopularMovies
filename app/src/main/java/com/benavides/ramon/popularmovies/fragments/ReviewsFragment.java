@@ -93,7 +93,7 @@ public class ReviewsFragment extends BaseFragment implements LoaderManager.Loade
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        mAdapter.changeCursor(null);
     }
 
     //  DataTaskListener method

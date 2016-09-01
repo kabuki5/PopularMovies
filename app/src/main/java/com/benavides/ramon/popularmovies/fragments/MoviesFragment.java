@@ -82,6 +82,8 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
 
+
+
         getLoaderManager().initLoader(MOVIES_LOADER, null, this);
 
         super.onActivityCreated(savedInstanceState);
@@ -197,7 +199,7 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
 
     @Override
     public void onLoaderReset(Loader loader) {
-//        mAdapter.swapCursor(null);
+        mAdapter.changeCursor(null);
     }
 
 

@@ -21,6 +21,8 @@ import java.util.ArrayList;
  */
 public class Utils {
 
+    private static final long DAY_MILLIS = 1000 * 60 * 60 * 24;
+
     public static String readInputStream(InputStream is) throws IOException {
         StringBuilder sb = new StringBuilder();
 
@@ -67,7 +69,7 @@ public class Utils {
 
     public static long readLongPreference(Context context, String preferenceToRead) {
         SharedPreferences preferences = context.getSharedPreferences(context.getString(R.string.shared_prefs_name), Context.MODE_PRIVATE);
-        long preference = preferences.getLong(preferenceToRead, System.currentTimeMillis());
+        long preference = preferences.getLong(preferenceToRead, 0);
         return preference;
     }
 
@@ -91,7 +93,9 @@ public class Utils {
     }
 
     public static boolean needNotificateUpdate(Context context) {
-        return (System.currentTimeMillis() - readLongPreference(context, context.getString(R.string.last_notification_pref)) > (1000 * 60 * 60 * 24)); //A DAY
+        long lastNotif = readLongPreference(context, context.getString(R.string.last_notification_pref));
+        long now = System.currentTimeMillis();
+        return  now - lastNotif >= DAY_MILLIS;
     }
 
     public static int getCategoryByName(Context context, String name) {

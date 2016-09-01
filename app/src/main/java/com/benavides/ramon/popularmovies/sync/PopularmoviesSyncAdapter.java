@@ -80,6 +80,7 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void notifySync() {
         //take control over a notification per day
+
         if (!Utils.needNotificateUpdate(getContext()))
             return;
 
@@ -173,8 +174,6 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
-            Log.d("RBM", "RESPONSE CODE => " + urlConnection.getResponseCode());
-            Log.d("RBM", "RESPONSE MESSAGE => " + urlConnection.getResponseMessage());
             //Getting string from input stream
             String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
 
@@ -206,9 +205,6 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
-            Log.d("RBM", "RESPONSE CODE => " + urlConnection.getResponseCode());
-            Log.d("RBM", "RESPONSE MESSAGE => " + urlConnection.getResponseMessage());
-
             //Getting string from input stream
             String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
 
@@ -238,9 +234,6 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
-
-            Log.d("RBM", "RESPONSE CODE => " + urlConnection.getResponseCode());
-            Log.d("RBM", "RESPONSE MESSAGE => " + urlConnection.getResponseMessage());
 
             //Getting string from input stream
             String jsonResult = Utils.readInputStream(urlConnection.getInputStream());

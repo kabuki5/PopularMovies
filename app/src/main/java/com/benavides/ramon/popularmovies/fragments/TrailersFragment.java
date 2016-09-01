@@ -99,6 +99,7 @@ public class TrailersFragment extends BaseFragment implements LoaderManager.Load
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapter.changeCursor(null);
     }
 
     //  DataTaskListener method
