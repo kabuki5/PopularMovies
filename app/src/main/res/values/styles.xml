@@ -24,6 +24,11 @@
         <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
+    <style name="AppTheme.ActorName">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
 
     <style name="AppTheme.DetailCardLayout">
         <item name="android:padding">@dimen/detail_card_padding</item>

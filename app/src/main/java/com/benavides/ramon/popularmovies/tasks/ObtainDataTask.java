@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.benavides.ramon.popularmovies.R;
+import com.benavides.ramon.popularmovies.data.Actor;
 import com.benavides.ramon.popularmovies.data.Review;
 import com.benavides.ramon.popularmovies.data.Trailer;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
@@ -33,6 +34,7 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Boolean> {
 
     public static final int TYPE_REVIEWS = 1;
     public static final int TYPE_TRAILERS = 2;
+    public static final int TYPE_CAST = 3;
     private final int mType;
 
     public ObtainDataTask(Context context, DataTaskListener callback, int type) {
@@ -50,24 +52,32 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Boolean> {
     protected Boolean doInBackground(Integer... params) {
 
 
-
         switch (mType) {
             case TYPE_REVIEWS:
-                Log.d(TAG,"requesting API to get reviews");
+                Log.d(TAG, "requesting API to get reviews");
                 ContentValues[] reviews = retrieveReviews(params[0]);
                 if (reviews != null && reviews.length > 0) {
                     mContext.getContentResolver().bulkInsert(MoviesContract.ReviewEntry.buildReviewData(), reviews);
                     return true;
-                }else{
+                } else {
                     return false;
                 }
             case TYPE_TRAILERS:
-                Log.d(TAG,"requesting API to get trailers");
+                Log.d(TAG, "requesting API to get trailers");
                 ContentValues[] trailers = retrieveTrailers(params[0]);
                 if (trailers != null && trailers.length > 0) {
                     mContext.getContentResolver().bulkInsert(MoviesContract.TrailerEntry.buildTrailerData(), trailers);
                     return true;
-                }else{
+                } else {
+                    return false;
+                }
+            case TYPE_CAST:
+                Log.d(TAG, "requesting API to get cast");
+                ContentValues[] cast = retrieveCast(params[0]);
+                if (cast != null && cast.length > 0) {
+                    mContext.getContentResolver().bulkInsert(MoviesContract.CastEntry.buildCastData(), cast);
+                    return true;
+                } else {
                     return false;
                 }
         }
@@ -115,7 +125,8 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Boolean> {
     private ContentValues[] retrieveTrailers(int movieId) {
 
         HttpURLConnection urlConnection = null;
-        ArrayList<Trailer> mTrailers = new ArrayList<>();;
+        ArrayList<Trailer> mTrailers = new ArrayList<>();
+        ;
         try {
             //Composing url to request data
             URL url = new URL(mContext.getString(R.string.tmdb_api_url) + movieId + "/videos" + mContext.getString(R.string.tmdb_api_key));
@@ -140,5 +151,36 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Boolean> {
 
 
         return DataHelper.prepareToInsertTrailers(mTrailers);
+    }
+
+    private ContentValues[] retrieveCast(int movieId) {
+
+        HttpURLConnection urlConnection = null;
+        ArrayList<Actor> actors = new ArrayList<>();
+        ;
+        try {
+            //Composing url to request data
+            URL url = new URL(mContext.getString(R.string.tmdb_api_url) + movieId + "/credits" + mContext.getString(R.string.tmdb_api_key));
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            //Getting string from input stream
+            String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
+
+            //Parse Data
+            actors = DataHelper.parseCastJson(mContext, movieId, jsonResult);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        return DataHelper.prepareToInserCast(actors);
     }
 }

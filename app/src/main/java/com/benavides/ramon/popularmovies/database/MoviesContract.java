@@ -18,6 +18,7 @@ public class MoviesContract {
     public static final String PATH_MOVIE_CATEGORY = "movie_category";
     public static final String PATH_REVIEWS = "reviews";
     public static final String PATH_TRAILERS = "trailers";
+    public static final String PATH_CAST = "cast";
 
 
     public static final class MovieEntry implements BaseColumns {
@@ -179,6 +180,37 @@ public class MoviesContract {
         public static final int TRAILER_COLUMN_NAME = 1;
         public static final int TRAILER_COLUMN_SOURCE = 2;
         public static final int TRAILER_COLUMN_MOVIE_ID = 3;
+    }
+
+    public static final class CastEntry implements BaseColumns {
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_CAST).build();
+
+        public static final String TABLE_NAME = "cast";
+
+        public static final String COLUMN_CHARACTER = "character";
+        public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_PICTURE = "picture";
+        public static final String COLUMN_MOVIE_ID = "movie_id";
+
+        public static Uri buildCastData() {
+            return CONTENT_URI.buildUpon().build();
+        }
+
+        public static final String[] CAST_PROJECTION = {
+                _ID,
+                COLUMN_CHARACTER,
+                COLUMN_NAME,
+                COLUMN_PICTURE,
+                COLUMN_MOVIE_ID
+        };
+
+        // These are tied with the TRAILER_PROJECTION
+        public static final int CAST_COLUMN_ID = 0;
+        public static final int CAST_COLUMN_CHARACTER = 1;
+        public static final int CAST_COLUMN_NAME = 2;
+        public static final int CAST_COLUMN_PICTURE = 3;
+        public static final int CAST_COLUMN_MOVIE_ID = 4;
     }
 
 }

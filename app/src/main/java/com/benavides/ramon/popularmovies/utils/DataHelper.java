@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 
 import com.benavides.ramon.popularmovies.R;
+import com.benavides.ramon.popularmovies.data.Actor;
 import com.benavides.ramon.popularmovies.data.Movie;
 import com.benavides.ramon.popularmovies.data.Review;
 import com.benavides.ramon.popularmovies.data.Trailer;
@@ -77,7 +78,7 @@ public class DataHelper {
         for (int i = 0; i < trailers.length(); i++) {
             JSONObject trailerObject = trailers.getJSONObject(i);
             Trailer trailer = new Trailer();
-            if(trailerObject.getString("site").equalsIgnoreCase("youtube")){
+            if (trailerObject.getString("site").equalsIgnoreCase("youtube")) {
                 trailer.setId(trailerObject.getString("id"));
                 trailer.setName(trailerObject.getString("name"));
                 trailer.setSource(trailerObject.getString("key"));
@@ -85,6 +86,26 @@ public class DataHelper {
                 result.add(trailer);
 
             }
+        }
+        return result;
+    }
+
+    public static ArrayList<Actor> parseCastJson(Context context, int movieId, String json) throws JSONException {
+
+        ArrayList<Actor> result = new ArrayList<>();
+
+        JSONObject castData = new JSONObject(json);
+        JSONArray cast = castData.getJSONArray("cast");
+        for (int i = 0; i < cast.length(); i++) {
+            JSONObject castObject = cast.getJSONObject(i);
+            Actor actor = new Actor();
+            actor.setId(castObject.getInt("id"));
+            actor.setName(castObject.getString("name"));
+            actor.setCharacter(castObject.getString("character"));
+            actor.setPicture(context.getString(R.string.tmdb_poster_base_url) + "w185" + castObject.getString("profile_path"));
+            actor.setMovieId(movieId);
+            result.add(actor);
+
         }
         return result;
     }
@@ -156,32 +177,50 @@ public class DataHelper {
         return contentValues;
     }
 
+    public static ContentValues[] prepareToInserCast(ArrayList<Actor> actors) {
+        ContentValues[] contentValues = new ContentValues[actors.size()];
+        for (int i = 0; i < actors.size(); i++) {
+
+            Actor actor = actors.get(i);
+
+            ContentValues values = new ContentValues();
+            values.put(MoviesContract.CastEntry._ID, actor.getId());
+            values.put(MoviesContract.CastEntry.COLUMN_NAME, actor.getName());
+            values.put(MoviesContract.CastEntry.COLUMN_CHARACTER, actor.getCharacter());
+            values.put(MoviesContract.CastEntry.COLUMN_PICTURE, actor.getPicture());
+            values.put(MoviesContract.CastEntry.COLUMN_MOVIE_ID, actor.getMovieId());
+
+            contentValues[i] = values;
+        }
+        return contentValues;
+    }
+
     public static ArrayList<Review> getReviewsFromCursor(Cursor cursor) {
         ArrayList<Review> result = new ArrayList<>();
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 Review review = new Review();
                 review.setId(cursor.getString(MoviesContract.ReviewEntry.REVIEWS_COLUMN_ID));
                 review.setAuthor(cursor.getString(MoviesContract.ReviewEntry.REVIEWS_COLUMN_AUTHOR));
                 review.setContent(cursor.getString(MoviesContract.ReviewEntry.REVIEWS_COLUMN_CONTENT));
                 review.setMovieId(cursor.getInt(MoviesContract.ReviewEntry.REVIEWS_COLUMN_MOVIE_ID));
                 result.add(review);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         return result;
     }
 
     public static ArrayList<Trailer> getTrailersFromCursor(Cursor cursor) {
         ArrayList<Trailer> result = new ArrayList<>();
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 Trailer trailer = new Trailer();
                 trailer.setId(cursor.getString(MoviesContract.TrailerEntry.TRAILER_COLUMN_ID));
                 trailer.setName(cursor.getString(MoviesContract.TrailerEntry.TRAILER_COLUMN_NAME));
                 trailer.setSource(cursor.getString(MoviesContract.TrailerEntry.TRAILER_COLUMN_SOURCE));
                 trailer.setMovieID(cursor.getInt(MoviesContract.TrailerEntry.TRAILER_COLUMN_MOVIE_ID));
                 result.add(trailer);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         return result;
     }

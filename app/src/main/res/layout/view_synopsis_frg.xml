@@ -7,57 +7,95 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <android.support.v7.widget.CardView
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="10dp">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <LinearLayout
-            style="@style/AppTheme.DetailCardLayout"
+        <android.support.v7.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <RatingBar
-                android:id="@+id/rating_bar"
-                style="@style/AppTheme.Ratingbar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:isIndicator="true"
-                android:numStars="5"
-                android:stepSize="0.1" />
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dimen_cardview_margin">
 
             <LinearLayout
+                style="@style/AppTheme.DetailCardLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-                <TextView
-                    android:layout_weight="1"
-                    style="@style/AppTheme.DetailSectionTitle"
+                <RatingBar
+                    android:id="@+id/rating_bar"
+                    style="@style/AppTheme.Ratingbar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    android:stepSize="0.1" />
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/synopsis_low" />
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/AppTheme.DetailSectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/synopsis_low" />
+
+                    <TextView
+                        android:id="@+id/release_date_tev"
+                        style="@style/AppTheme.DetailSectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end" />
+
+                </LinearLayout>
+
 
                 <TextView
-                    style="@style/AppTheme.DetailSectionTitle"
-                    android:gravity="end"
-                    android:layout_weight="1"
-                    android:id="@+id/release_date_tev"
+                    android:id="@+id/synopsis_tev"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
             </LinearLayout>
 
+        </android.support.v7.widget.CardView>
 
-            <TextView
-                android:id="@+id/synopsis_tev"
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dimen_cardview_margin"
+            android:orientation="vertical">
+
+            <LinearLayout
+                style="@style/AppTheme.DetailCardLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-        </LinearLayout>
+                <TextView
+                    style="@style/AppTheme.DetailSectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/cast_title_margin_bottom"
+                    android:text="@string/cast" />
 
-    </android.support.v7.widget.CardView>
+                <LinearLayout
+                    android:id="@+id/view_synopsis_cast_ll"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
+
+
+        </android.support.v7.widget.CardView>
+
+    </LinearLayout>
 
 
 </android.support.v4.widget.NestedScrollView>

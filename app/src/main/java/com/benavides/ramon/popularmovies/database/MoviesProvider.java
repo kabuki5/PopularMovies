@@ -29,6 +29,7 @@ public class MoviesProvider extends ContentProvider {
     static final int MOVIE_CATEGORY = 300;
     static final int REVIEWS = 400;
     static final int TRAILERS = 500;
+    static final int CAST = 600;
 
     private static UriMatcher buildUriMatcher() {
         final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -40,6 +41,7 @@ public class MoviesProvider extends ContentProvider {
         uriMatcher.addURI(authority, MoviesContract.PATH_MOVIE_CATEGORY, MOVIE_CATEGORY);
         uriMatcher.addURI(authority, MoviesContract.PATH_REVIEWS, REVIEWS);
         uriMatcher.addURI(authority, MoviesContract.PATH_TRAILERS, TRAILERS);
+        uriMatcher.addURI(authority, MoviesContract.PATH_CAST, CAST);
 
         return uriMatcher;
     }
@@ -111,6 +113,10 @@ public class MoviesProvider extends ContentProvider {
             case TRAILERS:
                 cursor = db.query(MoviesContract.TrailerEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
                 break;
+
+            case CAST:
+                cursor = db.query(MoviesContract.CastEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -154,9 +160,7 @@ public class MoviesProvider extends ContentProvider {
 
                     result = db.insert(MoviesContract.MovieCategoryEntry.TABLE_NAME, null, contentValues);
                     resultUri = MoviesContract.MovieEntry.buildMoviesUri(result);
-
                 }
-
 
                 break;
             default:
@@ -323,6 +327,23 @@ public class MoviesProvider extends ContentProvider {
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
+
+            case CAST:
+                db.beginTransaction();
+                try {
+                    for (ContentValues contentValues : values) {
+                        long res = db.insert(MoviesContract.CastEntry.TABLE_NAME, null, contentValues);
+                        if (res != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+
             default:
                 return super.bulkInsert(uri, values);
         }

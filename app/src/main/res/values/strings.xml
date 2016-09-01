@@ -27,4 +27,6 @@
     <string name="last_notification_pref">last_notification</string>
     <string name="remove_from_favs">Removed from favorites</string>
     <string name="added_to_favs">Added to favorites</string>
+    <string name="cast">Cast</string>
+    <string name="as">"As "</string>
 </resources>

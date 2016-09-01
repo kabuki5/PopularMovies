@@ -11,5 +11,7 @@
     <dimen name="dimen_no_data_cloud_size">350dp</dimen>
     <dimen name="dimen_margin_fab">20dp</dimen>
     <dimen name="sort_dialog_drawable_padding">10dp</dimen>
+    <dimen name="item_actor_roundedimageview_margin">10dp</dimen>
+    <dimen name="item_actor_roundedimv_width">60dp</dimen>
 
 </resources>
