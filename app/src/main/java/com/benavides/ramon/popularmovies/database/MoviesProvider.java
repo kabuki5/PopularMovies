@@ -13,6 +13,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.benavides.ramon.popularmovies.R;
+import com.benavides.ramon.popularmovies.utils.Utils;
 
 
 /**
@@ -84,8 +85,12 @@ public class MoviesProvider extends ContentProvider {
                 cursor = db.query(MoviesContract.MovieEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
                 break;
 
+            case MOVIE_CATEGORY:
+                cursor = db.query(MoviesContract.MovieCategoryEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
+                break;
+
             case MOVIES_WITH_CATEGORY:
-                int category = getCategoryByName(MoviesContract.MovieEntry.getCategoryFromUri(uri));
+                int category = Utils.getCategoryByName(getContext(), MoviesContract.MovieEntry.getCategoryFromUri(uri));
 
 //              subquery to obtain just the movies from the category selected
                 String selectQuery = "SELECT * FROM " + MoviesContract.MovieEntry.TABLE_NAME + " WHERE " + MoviesContract.MovieEntry._ID +
@@ -139,12 +144,12 @@ public class MoviesProvider extends ContentProvider {
 
                 if (existsMovie(movieID, db)) {// If movie exists then it is deleted
                     String selection = MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " = " + Integer.toString(movieID) +
-                            " AND " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + getCategoryByName(getContext().getString(R.string.favorites_low));
+                            " AND " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + Utils.getCategoryByName(getContext(), getContext().getString(R.string.favorites_low));
                     delete(MoviesContract.MovieEntry.buildMoviesData(), selection, null);
                 } else {
                     //                    Inserting movie as favorite.
                     ContentValues contentValues = new ContentValues();
-                    contentValues.put(MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID, getCategoryByName(getContext().getString(R.string.favorites_low)));
+                    contentValues.put(MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID, Utils.getCategoryByName(getContext(), getContext().getString(R.string.favorites_low)));
                     contentValues.put(MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID, movieID);
 
                     result = db.insert(MoviesContract.MovieCategoryEntry.TABLE_NAME, null, contentValues);
@@ -186,6 +191,12 @@ public class MoviesProvider extends ContentProvider {
                             "(SELECT " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME + " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " <> ?);";
 
                     db.execSQL(deleteSentence, selectionArgs);
+
+// delete relation if there is some film shared between categories
+                    final String freeCategory = "DELETE FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME + " WHERE " +
+                            MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + selectionArgs[0];
+
+                    db.execSQL(freeCategory);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -235,7 +246,7 @@ public class MoviesProvider extends ContentProvider {
         switch (match) {
             case MOVIES_WITH_CATEGORY:
 //              getting category ID
-                int categoryId = getCategoryByName(MoviesContract.MovieEntry.getCategoryFromUri(uri));
+                int categoryId = Utils.getCategoryByName(getContext(), MoviesContract.MovieEntry.getCategoryFromUri(uri));
 
 //              delete movies from Movies table and from Movie-Category table
                 delete(MoviesContract.MovieCategoryEntry.buildMovieCategoryData(), null, new String[]{Integer.toString(categoryId)});
@@ -318,27 +329,12 @@ public class MoviesProvider extends ContentProvider {
     }
 
 
-    public int getCategoryByName(String name) {
-        //Obtaining category ID
-        Cursor cursor = query(MoviesContract.CategoryEntry.buildCategoryData(),
-                MoviesContract.CategoryEntry.CATEGORIES_PROJECTION, MoviesContract.CategoryEntry.COLUMN_NAME + "=? ", new String[]{name}, null);
-
-        return getCategory(cursor);
-
-    }
-
-    private int getCategory(Cursor cursor) {
-        int result = 0;
-        if (cursor != null && cursor.moveToFirst()) {
-            result = cursor.getInt(0);
-        }
-        return result;
-    }
-
     //    Checks if movie exists
     private boolean existsMovie(int movieID, SQLiteDatabase db) {
         Cursor cursor = db.rawQuery("SELECT * FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME +
-                " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " = " + Integer.toString(movieID) + " AND " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + getCategoryByName(getContext().getString(R.string.favorites_low)), null);
+                " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " = " + Integer.toString(movieID) +
+                " AND " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " +
+                Utils.getCategoryByName(getContext(), getContext().getString(R.string.favorites_low)), null);
         boolean exists = cursor != null && cursor.moveToFirst();
         if (cursor != null)
             cursor.close();

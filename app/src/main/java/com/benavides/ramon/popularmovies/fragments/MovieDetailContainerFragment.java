@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -24,6 +26,7 @@ import com.benavides.ramon.popularmovies.MovieDetailActivity;
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.adapters.SectionsPagerAdapter;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
+import com.benavides.ramon.popularmovies.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -32,7 +35,7 @@ import butterknife.ButterKnife;
 /**
  * Contains CoordinatorLayout with viewpager
  */
-public class MovieDetailContainerFragment extends Fragment {
+public class MovieDetailContainerFragment extends Fragment implements View.OnClickListener {
 
     private static final String MOVIE_PARAM = "movie";
     private static final int MAX_FRGS = 3;
@@ -41,6 +44,8 @@ public class MovieDetailContainerFragment extends Fragment {
     private static final int FRG_TRAILERS = 2;
     private static final String TITLE_PARAM = "title";
     private static final String BACKDROP_PARAM = "backdrop";
+
+    private boolean isFavorite;
 
     @BindView(R.id.collapsing_toolbar_layout)
     CollapsingToolbarLayout collapsingToolbarLayout;
@@ -55,6 +60,9 @@ public class MovieDetailContainerFragment extends Fragment {
 
     @BindView(R.id.tab_layout)
     TabLayout mTabLayout;
+
+    @BindView(R.id.favorites_fab)
+    FloatingActionButton mFab;
 
     private String mTitle;
     private String mBackdrop;
@@ -133,6 +141,8 @@ public class MovieDetailContainerFragment extends Fragment {
         mTabLayout.setupWithViewPager(mViewpager);
 
         setupTabs();
+
+        mFab.setOnClickListener(this);
     }
 
     private void setupTabs() {
@@ -175,18 +185,55 @@ public class MovieDetailContainerFragment extends Fragment {
         Picasso.with(getActivity())
                 .load(backdropURL)
                 //.placeholder(R.drawable.ic_movie)
-                //.error(R.drawable.exclamation)
+                .error(R.drawable.cloud)
                 .into(backdropImv);
+
+        //Check if it's favorite
+        isFavoriteMovie();
+        updateFab();
+
+    }
+
+    private void updateFab() {
+        int imageResource;
+        if (isFavorite)
+            imageResource = R.mipmap.ic_heart_full;
+        else
+            imageResource = R.mipmap.ic_heart;
+
+        mFab.setImageResource(imageResource);
+    }
+
+    @Override
+    public void onClick(View v) {
+        Cursor cursor = getContext().getContentResolver().query(MoviesContract.MovieEntry.buildMoviesData(), null, MoviesContract.MovieEntry._ID + " =?", new String[]{Integer.toString(movieID)}, null);
+        if (cursor != null && cursor.moveToFirst())
+            addRemoveFavorite(cursor);
     }
 
     private void addRemoveFavorite(Cursor cursor) {
-        //TODO => to insert favorite
+        // insert favorite or remove favorite
         ContentValues contentValues = new ContentValues();
         DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
         getActivity().getContentResolver().insert(MoviesContract.MovieEntry.buildMoviesData(), contentValues);
+
+        String message = isFavorite ? getActivity().getString(R.string.remove_from_favs) : getActivity().getString(R.string.added_to_favs);
+        if (getView() != null)
+            Snackbar.make(getView(), message, Snackbar.LENGTH_SHORT).show();
+        isFavorite = !isFavorite;
+        updateFab();
     }
 
+    private void isFavoriteMovie() {
+        //Check if it's favorite
+        Cursor resCursor = getContext().getContentResolver().query(MoviesContract.MovieCategoryEntry.buildMovieCategoryData(), null,
+                MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " =? AND " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " =?",
+                new String[]{Integer.toString(Utils.getCategoryByName(getActivity(), getString(R.string.favorites_low))), Integer.toString(movieID)},
+                null);
 
-
+        isFavorite = resCursor != null && resCursor.moveToFirst();
+        if (resCursor != null)
+            resCursor.close();
+    }
 
 }

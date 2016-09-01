@@ -10,4 +10,10 @@
         app:showAsAction="always"
         android:icon="@drawable/ic_action_sort"/>
 
+    <item android:id="@+id/action_about"
+        android:title="About"
+        android:orderInCategory="101"
+        app:showAsAction="never"
+        android:icon="@mipmap/ic_info"/>
+
 </menu>

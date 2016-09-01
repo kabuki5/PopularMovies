@@ -12,4 +12,6 @@
     <dimen name="item_trailer_name_height">60dp</dimen>
     <dimen name="item_trailer_name_padding">10dp</dimen>
     <dimen name="dimen_no_data_cloud_size">270dp</dimen>
+    <dimen name="dimen_margin_fab">15dp</dimen>
+    <dimen name="sort_dialog_drawable_padding">10dp</dimen>
 </resources>

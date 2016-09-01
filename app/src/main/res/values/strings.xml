@@ -24,4 +24,7 @@
     <string name="reviews">REVIEWS</string>
     <string name="trailers">TRAILERS</string>
     <string name="author">Author:</string>
+    <string name="last_notification_pref">last_notification</string>
+    <string name="remove_from_favs">Removed from favorites</string>
+    <string name="added_to_favs">Added to favorites</string>
 </resources>

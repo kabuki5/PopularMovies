@@ -6,16 +6,8 @@
     android:orientation="vertical"
     android:padding="@dimen/activity_horizontal_margin">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:text="Search movies by"
-        android:textColor="@color/colorAccent"
-        android:textSize="18sp"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
-
     <Button
+        android:drawableLeft="@drawable/ic_star"
         style="@style/AppTheme.SelectionDialogButton"
         android:id="@+id/popular_dialog_button"
         android:layout_width="match_parent"
@@ -24,6 +16,8 @@
         android:text="@string/popular" />
 
     <Button
+        android:drawableLeft="@drawable/ic_rated"
+        android:drawablePadding="@dimen/sort_dialog_drawable_padding"
         style="@style/AppTheme.SelectionDialogButton"
         android:id="@+id/top_rated_dialog_button"
         android:layout_width="match_parent"
@@ -32,6 +26,7 @@
         android:text="@string/top_rated" />
 
     <Button
+        android:drawableLeft="@drawable/ic_fav"
         style="@style/AppTheme.SelectionDialogButton"
         android:id="@+id/favorites_dialog_button"
         android:layout_width="match_parent"

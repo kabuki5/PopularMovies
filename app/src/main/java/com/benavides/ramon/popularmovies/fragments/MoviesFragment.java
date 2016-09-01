@@ -7,6 +7,7 @@ import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -24,6 +25,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.benavides.ramon.popularmovies.AboutActivity;
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.adapters.MoviesCursorAdapter;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
@@ -139,6 +141,7 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
                                 break;
                         }
 
+
                         Utils.writeStringPreference(getActivity(), getString(R.string.sort_by_pref), selection);
                         dialog.dismiss();
                         updateData();
@@ -148,6 +151,9 @@ public class MoviesFragment extends Fragment implements AdapterView.OnItemClickL
                 dialog.findViewById(R.id.popular_dialog_button).setOnClickListener(clickListener);
                 dialog.findViewById(R.id.top_rated_dialog_button).setOnClickListener(clickListener);
                 dialog.findViewById(R.id.favorites_dialog_button).setOnClickListener(clickListener);
+                break;
+            case R.id.action_about:
+                startActivity(new Intent(getActivity(), AboutActivity.class));
                 break;
         }
 

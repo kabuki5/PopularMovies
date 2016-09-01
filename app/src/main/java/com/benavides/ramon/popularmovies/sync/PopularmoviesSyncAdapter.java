@@ -78,8 +78,11 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
 
-    // TODO => take control over a notification per day
     private void notifySync() {
+        //take control over a notification per day
+        if (!Utils.needNotificateUpdate(getContext()))
+            return;
+
         NotificationManager notificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getContext())
@@ -97,6 +100,7 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
         mBuilder.setContentIntent(resultPendingIntent);
 
         notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        Utils.writeLongPreference(getContext(), getContext().getString(R.string.last_notification_pref), System.currentTimeMillis());
     }
 
     public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
@@ -169,8 +173,8 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
-            Log.d("RBM","RESPONSE CODE => "+urlConnection.getResponseCode());
-            Log.d("RBM","RESPONSE MESSAGE => "+urlConnection.getResponseMessage());
+            Log.d("RBM", "RESPONSE CODE => " + urlConnection.getResponseCode());
+            Log.d("RBM", "RESPONSE MESSAGE => " + urlConnection.getResponseMessage());
             //Getting string from input stream
             String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
 
@@ -202,8 +206,8 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
-            Log.d("RBM","RESPONSE CODE => "+urlConnection.getResponseCode());
-            Log.d("RBM","RESPONSE MESSAGE => "+urlConnection.getResponseMessage());
+            Log.d("RBM", "RESPONSE CODE => " + urlConnection.getResponseCode());
+            Log.d("RBM", "RESPONSE MESSAGE => " + urlConnection.getResponseMessage());
 
             //Getting string from input stream
             String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
@@ -235,8 +239,8 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
-            Log.d("RBM","RESPONSE CODE => "+urlConnection.getResponseCode());
-            Log.d("RBM","RESPONSE MESSAGE => "+urlConnection.getResponseMessage());
+            Log.d("RBM", "RESPONSE CODE => " + urlConnection.getResponseCode());
+            Log.d("RBM", "RESPONSE MESSAGE => " + urlConnection.getResponseMessage());
 
             //Getting string from input stream
             String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
