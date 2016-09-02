@@ -11,6 +11,7 @@
             android:id="@+id/item_actor_thumb"
             android:layout_width="@dimen/item_actor_roundedimv_width"
             android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_margin="@dimen/item_actor_roundedimageview_margin" />
 
@@ -19,7 +20,7 @@
             android:layout_height="match_parent"
             android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
-            android:layout_toRightOf="@+id/item_actor_thumb"
+            android:layout_toLeftOf="@+id/item_actor_thumb"
             android:gravity="center_vertical"
             android:orientation="vertical">
 
@@ -27,12 +28,14 @@
                 android:id="@+id/item_actor_name_tev"
                 style="@style/AppTheme.DetailSectionTitle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:gravity="right" />
 
             <TextView
                 android:id="@+id/item_actor_character_tev"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:gravity="right" />
 
         </LinearLayout>
 

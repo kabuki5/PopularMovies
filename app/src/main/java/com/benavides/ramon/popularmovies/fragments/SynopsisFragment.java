@@ -9,15 +9,19 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridLayout;
+import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.benavides.ramon.popularmovies.R;
+import com.benavides.ramon.popularmovies.adapters.CastCursorAdapter;
 import com.benavides.ramon.popularmovies.cviews.RoundedImageView;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
 import com.benavides.ramon.popularmovies.interfaces.DataTaskListener;
@@ -33,7 +37,7 @@ import butterknife.ButterKnife;
 public class SynopsisFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor>, DataTaskListener {
     private static final int MOVIE_LOADER = 1;
     private static final int CAST_LOADER = 7;
-    private static final int MAX_ACTORS = 9;
+    private static final int MAX_ACTORS = 10;
 
     private DetailContentChangeListener mCallback;
 
@@ -44,9 +48,10 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
     @BindView(R.id.release_date_tev)
     TextView releaseDateTev;
     @BindView(R.id.view_synopsis_cast_ll)
-    LinearLayout mCastLayout;
+    LinearLayout mCastGrl;
 
     private int movieID;
+    private CastCursorAdapter mCastAdapter;
 
     public static SynopsisFragment newInstance(int movieID) {
         Bundle args = new Bundle();
@@ -97,22 +102,30 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
     }
 
     private void populateCast(Cursor cursor) {
-        mCastLayout.removeAllViews();
+        mCastGrl.removeAllViews();
         if (cursor != null && cursor.moveToFirst()) {
             int i = 0;
             do {
+
+                int layout = i % 2 == 0 ? R.layout.item_actor : R.layout.item_actor2;
                 String character = getActivity().getString(R.string.as) + cursor.getString(MoviesContract.CastEntry.CAST_COLUMN_CHARACTER);
 
-                View castView = LayoutInflater.from(getActivity()).inflate(R.layout.item_actor, null);
+                View castView = LayoutInflater.from(getActivity()).inflate(layout, null);
                 ((TextView) castView.findViewById(R.id.item_actor_name_tev)).setText(cursor.getString(MoviesContract.CastEntry.CAST_COLUMN_NAME));
                 ((TextView) castView.findViewById(R.id.item_actor_character_tev)).setText(character);
-                Picasso.with(getActivity()).load(cursor.getString(MoviesContract.CastEntry.CAST_COLUMN_PICTURE)).into((RoundedImageView)castView.findViewById(R.id.item_actor_thumb));
-                mCastLayout.addView(castView);
+                Picasso.with(getActivity()).load(cursor.getString(MoviesContract.CastEntry.CAST_COLUMN_PICTURE)).into((RoundedImageView) castView.findViewById(R.id.item_actor_thumb));
+
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ((int) getActivity().getResources().getDimension(R.dimen.item_actor_height)));
+                int margin = (int) getResources().getDimension(R.dimen.dimen_cardview_margin);
+
+                params.setMargins(margin, margin, margin, 0);
+
+                castView.setLayoutParams(params);
+                mCastGrl.addView(castView);
                 i++;
             } while (cursor.moveToNext() && i < MAX_ACTORS);
         }
     }
-
 
     @Override
     public String getTitle() {
