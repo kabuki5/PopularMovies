@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.data.Actor;
+import com.benavides.ramon.popularmovies.data.CastActor;
 import com.benavides.ramon.popularmovies.data.Review;
 import com.benavides.ramon.popularmovies.data.Trailer;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
@@ -35,6 +36,7 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Boolean> {
     public static final int TYPE_REVIEWS = 1;
     public static final int TYPE_TRAILERS = 2;
     public static final int TYPE_CAST = 3;
+    public static final int TYPE_ACTOR = 4;
     private final int mType;
 
     public ObtainDataTask(Context context, DataTaskListener callback, int type) {
@@ -80,6 +82,15 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Boolean> {
                 } else {
                     return false;
                 }
+            case TYPE_ACTOR:
+                Log.d(TAG, "requesting API to get actor info");
+                ContentValues values = retrieveActorInfo(params[0]);
+                if(values!=null){
+                    mContext.getContentResolver().insert(MoviesContract.ActorsEntry.buildActorsData(),values);
+                    return true;
+                }else
+                    return false;
+
         }
         return false;
     }
@@ -156,7 +167,7 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Boolean> {
     private ContentValues[] retrieveCast(int movieId) {
 
         HttpURLConnection urlConnection = null;
-        ArrayList<Actor> actors = new ArrayList<>();
+        ArrayList<CastActor> castActors = new ArrayList<>();
         ;
         try {
             //Composing url to request data
@@ -170,7 +181,7 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Boolean> {
             String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
 
             //Parse Data
-            actors = DataHelper.parseCastJson(mContext, movieId, jsonResult);
+            castActors = DataHelper.parseCastJson(mContext, movieId, jsonResult);
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -180,7 +191,37 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Boolean> {
             e.printStackTrace();
         }
 
+        return DataHelper.prepareToInsertCast(castActors);
+    }
 
-        return DataHelper.prepareToInserCast(actors);
+
+    private ContentValues retrieveActorInfo(int actorId) {
+
+        HttpURLConnection urlConnection = null;
+        Actor actor = null;
+
+        try {
+            //Composing url to request data
+            URL url = new URL(mContext.getString(R.string.tmdb_api_url_person) + actorId + mContext.getString(R.string.tmdb_api_key));
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            //Getting string from input stream
+            String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
+
+            //Parse Data
+            actor = DataHelper.parseActorJson(mContext, jsonResult);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return DataHelper.prepareToInsertActor(actor);
     }
 }

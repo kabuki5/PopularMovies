@@ -26,7 +26,8 @@
             android:name=".MovieDetailActivity"
             android:configChanges="orientation"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".AboutActivity"/>
+        <activity android:name=".AboutActivity" />
+        <activity android:name=".ActorInfoActivity" />
 
         <provider
             android:name=".database.MoviesProvider"

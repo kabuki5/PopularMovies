@@ -83,19 +83,27 @@ public class Utils {
     //Return just the year
     public static String formatReleaseDate(String date) throws ArrayIndexOutOfBoundsException {
         String[] splitted = date.split("-");
-       /* StringBuilder sb = new StringBuilder();
+        return splitted[0];
+    }
+
+    //Return just the year
+    public static String formatBirthDate(String date) throws ArrayIndexOutOfBoundsException {
+        String[] splitted = date.split("-");
+        StringBuilder sb = new StringBuilder();
+        if(splitted.length!=3)
+            return null;
         sb.append(splitted[1]);
         sb.append("-");
         sb.append(splitted[2]);
         sb.append("-");
-        sb.append(splitted[0]);*/
-        return splitted[0];
+        sb.append(splitted[0]);
+        return sb.toString();
     }
 
     public static boolean needNotificateUpdate(Context context) {
         long lastNotif = readLongPreference(context, context.getString(R.string.last_notification_pref));
         long now = System.currentTimeMillis();
-        return  now - lastNotif >= DAY_MILLIS;
+        return  now - lastNotif >= (DAY_MILLIS/2);// 12 hours
     }
 
     public static int getCategoryByName(Context context, String name) {

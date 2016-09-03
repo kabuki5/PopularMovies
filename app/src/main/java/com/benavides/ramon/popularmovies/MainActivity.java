@@ -27,7 +27,6 @@ public class MainActivity extends AppCompatActivity implements MovieSelectorList
         //If it's tablet at landscape orientation
         twoPane = findViewById(R.id.detail_frg_container) != null;
 
-
         //TODO => rethink this!!!!
         if(twoPane){
             MovieDetailContainerFragment movieDetailFragment = MovieDetailContainerFragment.newInstance(movie);

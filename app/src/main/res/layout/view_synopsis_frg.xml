@@ -77,7 +77,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/dimen_cardview_margin"
                 android:layout_marginBottom="@dimen/cast_title_margin_bottom"
-                android:text="@string/cast" />
+                android:text="@string/castActor" />
 
             <LinearLayout
                 android:id="@+id/view_synopsis_cast_ll"

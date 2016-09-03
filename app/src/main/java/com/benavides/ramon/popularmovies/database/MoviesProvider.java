@@ -30,6 +30,7 @@ public class MoviesProvider extends ContentProvider {
     static final int REVIEWS = 400;
     static final int TRAILERS = 500;
     static final int CAST = 600;
+    static final int ACTORS = 700;
 
     private static UriMatcher buildUriMatcher() {
         final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -42,7 +43,7 @@ public class MoviesProvider extends ContentProvider {
         uriMatcher.addURI(authority, MoviesContract.PATH_REVIEWS, REVIEWS);
         uriMatcher.addURI(authority, MoviesContract.PATH_TRAILERS, TRAILERS);
         uriMatcher.addURI(authority, MoviesContract.PATH_CAST, CAST);
-
+        uriMatcher.addURI(authority, MoviesContract.PATH_ACTORS, ACTORS);
         return uriMatcher;
     }
 
@@ -117,6 +118,10 @@ public class MoviesProvider extends ContentProvider {
             case CAST:
                 cursor = db.query(MoviesContract.CastEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
                 break;
+
+            case ACTORS:
+                cursor = db.query(MoviesContract.ActorsEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -163,6 +168,9 @@ public class MoviesProvider extends ContentProvider {
                 }
 
                 break;
+            case ACTORS:
+                db.insert(MoviesContract.ActorsEntry.TABLE_NAME, null, values);
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -204,6 +212,9 @@ public class MoviesProvider extends ContentProvider {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
+                break;
+            case ACTORS:
+                rowsDeleted = db.delete(MoviesContract.ActorsEntry.TABLE_NAME, null, null);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
@@ -254,6 +265,9 @@ public class MoviesProvider extends ContentProvider {
 
 //              delete movies from Movies table and from Movie-Category table
                 delete(MoviesContract.MovieCategoryEntry.buildMovieCategoryData(), null, new String[]{Integer.toString(categoryId)});
+
+//              delete actors data
+                delete(MoviesContract.ActorsEntry.buildActorsData(),null,null);
 
                 db.beginTransaction();
 //              inserting movies into Movies table and Movie-Category relation

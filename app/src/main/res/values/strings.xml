@@ -3,6 +3,7 @@
 
     <!-- TMDB strings -->
     <string name="tmdb_api_url" translatable="false">http://api.themoviedb.org/3/movie/</string>
+    <string name="tmdb_api_url_person" translatable="false">http://api.themoviedb.org/3/person/</string>
     <string name="tmdb_api_key" translatable="false">\?api_key=5af71ded7a9f8a24e1f7c799981ec273</string>
     <string name="tmdb_poster_base_url" translatable="false">http://image.tmdb.org/t/p/</string>
     <string name="movie_intent_tag">movie_data</string>
@@ -27,6 +28,8 @@
     <string name="last_notification_pref">last_notification</string>
     <string name="remove_from_favs">Removed from favorites</string>
     <string name="added_to_favs">Added to favorites</string>
-    <string name="cast">Cast</string>
+    <string name="castActor">Cast</string>
     <string name="as">"As "</string>
+    <string name="actor_id_param">actor_id_param</string>
+    <string name="no_data_found">No data found</string>
 </resources>

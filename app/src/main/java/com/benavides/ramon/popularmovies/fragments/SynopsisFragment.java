@@ -1,6 +1,7 @@
 package com.benavides.ramon.popularmovies.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -20,9 +21,11 @@ import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.benavides.ramon.popularmovies.ActorInfoActivity;
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.adapters.CastCursorAdapter;
 import com.benavides.ramon.popularmovies.cviews.RoundedImageView;
+import com.benavides.ramon.popularmovies.data.CastActor;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
 import com.benavides.ramon.popularmovies.interfaces.DataTaskListener;
 import com.benavides.ramon.popularmovies.interfaces.DetailContentChangeListener;
@@ -34,10 +37,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class SynopsisFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor>, DataTaskListener {
+public class SynopsisFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor>, DataTaskListener, View.OnClickListener {
     private static final int MOVIE_LOADER = 1;
     private static final int CAST_LOADER = 7;
-    private static final int MAX_ACTORS = 10;
+    private static final int MAX_ACTORS = 11;
 
     private DetailContentChangeListener mCallback;
 
@@ -51,7 +54,6 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
     LinearLayout mCastGrl;
 
     private int movieID;
-    private CastCursorAdapter mCastAdapter;
 
     public static SynopsisFragment newInstance(int movieID) {
         Bundle args = new Bundle();
@@ -121,11 +123,14 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
                 params.setMargins(margin, margin, margin, 0);
 
                 castView.setLayoutParams(params);
+                castView.setTag(cursor.getInt(MoviesContract.CastEntry.CAST_COLUMN_ID));
                 mCastGrl.addView(castView);
+                castView.setOnClickListener(this);
                 i++;
             } while (cursor.moveToNext() && i < MAX_ACTORS);
         }
     }
+
 
     @Override
     public String getTitle() {
@@ -158,7 +163,7 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
 
     }
 
-    //Cast loader callbacks
+    //CastActor loader callbacks
     LoaderManager.LoaderCallbacks castLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -187,5 +192,13 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
     public void onDataRetrieved(boolean hasReceiveData) {
         if (isAdded() && hasReceiveData)
             getLoaderManager().restartLoader(CAST_LOADER, null, castLoaderCallbacks);
+    }
+
+    @Override
+    public void onClick(View v) {
+        int actorId = (int) v.getTag();
+        Intent actorInfoIntent = new Intent(getActivity(), ActorInfoActivity.class);
+        actorInfoIntent.putExtra(getString(R.string.actor_id_param),actorId);
+        startActivity(actorInfoIntent);
     }
 }

@@ -73,12 +73,23 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 "UNIQUE ( " + MoviesContract.CastEntry._ID + " , " + MoviesContract.CastEntry.COLUMN_MOVIE_ID + " ), " +
                 "FOREIGN KEY ( " + MoviesContract.CastEntry.COLUMN_MOVIE_ID + " ) REFERENCES " + MoviesContract.MovieEntry.TABLE_NAME + " (" + MoviesContract.MovieEntry._ID + ") ON DELETE CASCADE);";
 
+        final String SQL_CREATE_ACTORS_TABLE = "CREATE TABLE " + MoviesContract.ActorsEntry.TABLE_NAME + " (" +
+                MoviesContract.ActorsEntry._ID + " TEXT PRIMARY KEY, " +
+                MoviesContract.ActorsEntry.COLUMN_BIOGRAPHY + " TEXT NOT NULL, " +
+                MoviesContract.ActorsEntry.COLUMN_BIRTHDAY + " TEXT NOT NULL, " +
+                MoviesContract.ActorsEntry.COLUMN_DEATHDAY + " INTEGER NOT NULL, " +
+                MoviesContract.ActorsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
+                MoviesContract.ActorsEntry.COLUMN_PLACE + " TEXT NOT NULL, " +
+                MoviesContract.ActorsEntry.COLUMN_POPULARITY + " REAL NOT NULL, "+
+                MoviesContract.ActorsEntry.COLUMN_PICTURE+" TEXT NOT NULL); ";
+
         db.execSQL(SQL_CREATE_MOVIES_TABLE);
         db.execSQL(SQL_CREATE_CATEGORIES_TABLE);
         db.execSQL(SQL_CREATE_MOVIES_CATEGORIES_TABLE);
         db.execSQL(SQL_CREATE_REVIEWS_TABLE);
         db.execSQL(SQL_CREATE_TRAILERS_TABLE);
         db.execSQL(SQL_CREATE_CAST_TABLE);
+        db.execSQL(SQL_CREATE_ACTORS_TABLE);
     }
 
     @Override

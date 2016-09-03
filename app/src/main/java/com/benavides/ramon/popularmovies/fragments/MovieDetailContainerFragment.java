@@ -1,6 +1,7 @@
 package com.benavides.ramon.popularmovies.fragments;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import com.benavides.ramon.popularmovies.MovieDetailActivity;
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.adapters.SectionsPagerAdapter;
+import com.benavides.ramon.popularmovies.data.Movie;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
 import com.benavides.ramon.popularmovies.utils.Utils;
 import com.squareup.picasso.Picasso;
@@ -80,13 +82,16 @@ public class MovieDetailContainerFragment extends Fragment implements View.OnCli
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             String title = savedInstanceState.getString(TITLE_PARAM);
             String backdrop = savedInstanceState.getString(BACKDROP_PARAM);
+            movieID = savedInstanceState.getInt(MOVIE_PARAM);
             updateHeader(title, backdrop);
         }
+        super.onActivityCreated(savedInstanceState);
+
     }
+
 
     @Nullable
     @Override
@@ -99,11 +104,14 @@ public class MovieDetailContainerFragment extends Fragment implements View.OnCli
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Bundle extras;
 
-        if (getArguments() != null)
+        if (savedInstanceState != null) {
+            movieID = savedInstanceState.getInt(MOVIE_PARAM);
+        } else if (getArguments() != null) {
             movieID = getArguments().getInt(MOVIE_PARAM);
-        else {// from intent
-            movieID = getActivity().getIntent().getExtras().getInt(getString(R.string.movie_intent_tag));
+        } else if (getActivity().getIntent() != null && (extras = getActivity().getIntent().getExtras()) != null) {// from intent
+            movieID = extras.getInt(getString(R.string.movie_intent_tag));
         }
 
         //Setting up toolbar
@@ -145,6 +153,7 @@ public class MovieDetailContainerFragment extends Fragment implements View.OnCli
         mFab.setOnClickListener(this);
     }
 
+
     private void setupTabs() {
         TypedArray images = getResources().obtainTypedArray(R.array.tab_icons);
         String[] titles = getResources().getStringArray(R.array.tab_titles);
@@ -173,6 +182,7 @@ public class MovieDetailContainerFragment extends Fragment implements View.OnCli
     public void onSaveInstanceState(Bundle outState) {
         outState.putString(TITLE_PARAM, mTitle);
         outState.putString(BACKDROP_PARAM, mBackdrop);
+        outState.putInt(MOVIE_PARAM, movieID);
         super.onSaveInstanceState(outState);
     }
 

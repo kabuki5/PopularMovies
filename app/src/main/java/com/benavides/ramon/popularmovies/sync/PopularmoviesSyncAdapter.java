@@ -81,7 +81,7 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     private void notifySync() {
         //take control over a notification per day
 
-        if (!Utils.needNotificateUpdate(getContext()))
+       if (!Utils.needNotificateUpdate(getContext()))
             return;
 
         NotificationManager notificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);

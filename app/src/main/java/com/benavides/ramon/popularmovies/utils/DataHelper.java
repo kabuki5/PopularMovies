@@ -6,6 +6,7 @@ import android.database.Cursor;
 
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.data.Actor;
+import com.benavides.ramon.popularmovies.data.CastActor;
 import com.benavides.ramon.popularmovies.data.Movie;
 import com.benavides.ramon.popularmovies.data.Review;
 import com.benavides.ramon.popularmovies.data.Trailer;
@@ -90,15 +91,15 @@ public class DataHelper {
         return result;
     }
 
-    public static ArrayList<Actor> parseCastJson(Context context, int movieId, String json) throws JSONException {
+    public static ArrayList<CastActor> parseCastJson(Context context, int movieId, String json) throws JSONException {
 
-        ArrayList<Actor> result = new ArrayList<>();
+        ArrayList<CastActor> result = new ArrayList<>();
 
         JSONObject castData = new JSONObject(json);
         JSONArray cast = castData.getJSONArray("cast");
         for (int i = 0; i < cast.length(); i++) {
             JSONObject castObject = cast.getJSONObject(i);
-            Actor actor = new Actor();
+            CastActor actor = new CastActor();
             actor.setId(castObject.getInt("id"));
             actor.setName(castObject.getString("name"));
             actor.setCharacter(castObject.getString("character"));
@@ -108,6 +109,20 @@ public class DataHelper {
 
         }
         return result;
+    }
+
+    public static Actor parseActorJson(Context context, String json) throws JSONException {
+        JSONObject actorData = new JSONObject(json);
+        Actor actor = new Actor();
+        actor.setId(actorData.getInt("id"));
+        actor.setName(actorData.getString("name"));
+        actor.setBiography(actorData.getString("biography"));
+        actor.setBirthday(actorData.getString("birthday"));
+        actor.setDeathday(actorData.getString("deathday"));
+        actor.setPlace(actorData.getString("place_of_birth"));
+        actor.setPopularity(actorData.getDouble("popularity"));
+        actor.setPicture(context.getString(R.string.tmdb_poster_base_url) + "w500" + actorData.getString("profile_path"));
+        return actor;
     }
 
     public static Movie getMovieFromCursor(Cursor cursor) {
@@ -177,23 +192,40 @@ public class DataHelper {
         return contentValues;
     }
 
-    public static ContentValues[] prepareToInserCast(ArrayList<Actor> actors) {
-        ContentValues[] contentValues = new ContentValues[actors.size()];
-        for (int i = 0; i < actors.size(); i++) {
+    public static ContentValues[] prepareToInsertCast(ArrayList<CastActor> castActors) {
+        ContentValues[] contentValues = new ContentValues[castActors.size()];
+        for (int i = 0; i < castActors.size(); i++) {
 
-            Actor actor = actors.get(i);
+            CastActor castActor = castActors.get(i);
 
             ContentValues values = new ContentValues();
-            values.put(MoviesContract.CastEntry._ID, actor.getId());
-            values.put(MoviesContract.CastEntry.COLUMN_NAME, actor.getName());
-            values.put(MoviesContract.CastEntry.COLUMN_CHARACTER, actor.getCharacter());
-            values.put(MoviesContract.CastEntry.COLUMN_PICTURE, actor.getPicture());
-            values.put(MoviesContract.CastEntry.COLUMN_MOVIE_ID, actor.getMovieId());
+            values.put(MoviesContract.CastEntry._ID, castActor.getId());
+            values.put(MoviesContract.CastEntry.COLUMN_NAME, castActor.getName());
+            values.put(MoviesContract.CastEntry.COLUMN_CHARACTER, castActor.getCharacter());
+            values.put(MoviesContract.CastEntry.COLUMN_PICTURE, castActor.getPicture());
+            values.put(MoviesContract.CastEntry.COLUMN_MOVIE_ID, castActor.getMovieId());
 
             contentValues[i] = values;
         }
         return contentValues;
     }
+
+    public static ContentValues prepareToInsertActor(Actor actor){
+        if(actor==null)
+            return null;
+
+        ContentValues values = new ContentValues();
+        values.put(MoviesContract.ActorsEntry._ID, actor.getId());
+        values.put(MoviesContract.ActorsEntry.COLUMN_NAME, actor.getName());
+        values.put(MoviesContract.ActorsEntry.COLUMN_BIOGRAPHY, actor.getBiography());
+        values.put(MoviesContract.ActorsEntry.COLUMN_BIRTHDAY, actor.getBirthday());
+        values.put(MoviesContract.ActorsEntry.COLUMN_DEATHDAY, actor.getDeathday());
+        values.put(MoviesContract.ActorsEntry.COLUMN_PLACE, actor.getPlace());
+        values.put(MoviesContract.ActorsEntry.COLUMN_POPULARITY, actor.getPopularity());
+        values.put(MoviesContract.ActorsEntry.COLUMN_PICTURE, actor.getPicture());
+        return values;
+    }
+
 
     public static ArrayList<Review> getReviewsFromCursor(Cursor cursor) {
         ArrayList<Review> result = new ArrayList<>();
@@ -224,4 +256,6 @@ public class DataHelper {
         }
         return result;
     }
+
+
 }

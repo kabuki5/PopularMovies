@@ -19,6 +19,7 @@ public class MoviesContract {
     public static final String PATH_REVIEWS = "reviews";
     public static final String PATH_TRAILERS = "trailers";
     public static final String PATH_CAST = "cast";
+    public static final String PATH_ACTORS = "actors";
 
 
     public static final class MovieEntry implements BaseColumns {
@@ -205,12 +206,53 @@ public class MoviesContract {
                 COLUMN_MOVIE_ID
         };
 
-        // These are tied with the TRAILER_PROJECTION
+        // These are tied with the CAST_PROJECTION
         public static final int CAST_COLUMN_ID = 0;
         public static final int CAST_COLUMN_CHARACTER = 1;
         public static final int CAST_COLUMN_NAME = 2;
         public static final int CAST_COLUMN_PICTURE = 3;
         public static final int CAST_COLUMN_MOVIE_ID = 4;
+    }
+
+    public static final class ActorsEntry implements BaseColumns {
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_ACTORS).build();
+
+        public static final String TABLE_NAME = "actors";
+
+        public static final String COLUMN_BIOGRAPHY = "biography";
+        public static final String COLUMN_BIRTHDAY = "birthday";
+        public static final String COLUMN_DEATHDAY = "deathday";
+        public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_PLACE = "place";
+        public static final String COLUMN_POPULARITY = "popularity";
+        public static final String COLUMN_PICTURE = "picture";
+
+
+        public static Uri buildActorsData() {
+            return CONTENT_URI.buildUpon().build();
+        }
+
+        public static final String[] ACTORS_PROJECTION = {
+                _ID,
+                COLUMN_BIOGRAPHY,
+                COLUMN_BIRTHDAY,
+                COLUMN_DEATHDAY,
+                COLUMN_NAME,
+                COLUMN_PLACE,
+                COLUMN_POPULARITY,
+                COLUMN_PICTURE
+        };
+
+        // These are tied with the ACTORS_PROJECTION
+        public static final int ACTORS_COLUMN_ID = 0;
+        public static final int ACTORS_COLUMN_BIOGRAPHY = 1;
+        public static final int ACTORS_COLUMN_BIRTHDAY = 2;
+        public static final int ACTORS_COLUMN_DEATHDAY = 3;
+        public static final int ACTORS_COLUMN_NAME = 4;
+        public static final int ACTORS_COLUMN_PLACE = 5;
+        public static final int ACTORS_COLUMN_POPULARITY = 6;
+        public static final int ACTORS_COLUMN_PICTURE = 7;
     }
 
 }
