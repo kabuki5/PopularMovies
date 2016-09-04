@@ -41,16 +41,18 @@ public class MoviesContract {
 
         public static final String COLUMN_BACKDROP = "backdrop";
 
+        public static final String COLUMN_ORDER = "tmp_order";
+
         public static Uri buildMoviesData() {
             return CONTENT_URI.buildUpon().build();
         }
 
-        public static Uri buildMoviesDataWithCategory(String category) {
-            return CONTENT_URI.buildUpon().appendPath(category).build();
+        public static Uri buildMoviesDataWithCategory(int category) {
+            return CONTENT_URI.buildUpon().appendPath(Integer.toString(category)).build();
         }
 
-        public static String getCategoryFromUri(Uri uri) {
-            return uri.getPathSegments().get(1);
+        public static int getCategoryFromUri(Uri uri) {
+            return Integer.parseInt(uri.getPathSegments().get(1));
         }
 
         public static Uri buildMoviesUri(long id) {
@@ -64,7 +66,8 @@ public class MoviesContract {
                 COLUMN_POSTER,
                 COLUMN_RATING,
                 COLUMN_RELEASE_DATE,
-                COLUMN_BACKDROP
+                COLUMN_BACKDROP,
+                COLUMN_ORDER
         };
 
         // These are tied with the MOVIES_PROJECTION
@@ -75,6 +78,7 @@ public class MoviesContract {
         public static final int MOVIES_COLUMN_RATING = 4;
         public static final int MOVIES_COLUMN_RELEASE_DATE = 5;
         public static final int MOVIES_COLUMN_BACKDROP = 6;
+        public static final int MOVIES_COLUMN_ORDER = 7;
     }
 
 

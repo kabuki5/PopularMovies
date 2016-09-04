@@ -152,14 +152,14 @@ public class ActorInfoFragment extends Fragment implements LoaderManager.LoaderC
 
         String name = data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_NAME);
         String birthday = Utils.formatBirthDate(data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_BIRTHDAY));
-        String deathDay = data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_DEATHDAY);
+        String deathDay =  Utils.formatBirthDate(data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_DEATHDAY));
         String place = data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_PLACE);
         String biography = data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_BIOGRAPHY);
         String noData = getString(R.string.no_data_found);
 
 
         Picasso.with(getActivity()).load(data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_PICTURE))
-                .placeholder(R.mipmap.ic_default_photo).error(R.mipmap.ic_default_photo).into(mPictureImv);
+                .error(R.mipmap.ic_default_photo).into(mPictureImv);
         if (name == null || name.isEmpty() || name.equals("null"))
             name = noData;
         mName.setText(name);
@@ -168,11 +168,11 @@ public class ActorInfoFragment extends Fragment implements LoaderManager.LoaderC
             birthday = noData;
         mBirthday.setText(birthday);
 
-        if (deathDay == null || deathDay.isEmpty() || deathDay.equals("null")) {
-            mDeathDay.setVisibility(View.GONE);
-            mDeathdayTitle.setVisibility(View.GONE);
-        }else
+        if (deathDay != null && !deathDay.isEmpty() && !deathDay.equals("null")) {
+            mDeathDay.setVisibility(View.VISIBLE);
+            mDeathdayTitle.setVisibility(View.VISIBLE);
             mDeathDay.setText(deathDay);
+        }
 
         if (place == null || place.isEmpty() || place.equals("null"))
             place = noData;

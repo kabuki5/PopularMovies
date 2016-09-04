@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * Movie bean class
  */
-public class Movie implements Parcelable{
+public class Movie implements Parcelable {
 
     private int id;
     private String poster;
@@ -15,6 +15,7 @@ public class Movie implements Parcelable{
     private double rating;
     private String releaseDate;
     private String backdrop;
+    private int order;
 
     public Movie() {
     }
@@ -97,14 +98,25 @@ public class Movie implements Parcelable{
         this.id = id;
     }
 
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
     @Override
     public String toString() {
         return "Movie{" +
-                "poster='" + poster + '\'' +
+                "id=" + id +
+                ", poster='" + poster + '\'' +
                 ", originalTitle='" + originalTitle + '\'' +
                 ", synopsis='" + synopsis + '\'' +
                 ", rating=" + rating +
                 ", releaseDate='" + releaseDate + '\'' +
+                ", backdrop='" + backdrop + '\'' +
+                ", order=" + order +
                 '}';
     }
 
@@ -123,4 +135,6 @@ public class Movie implements Parcelable{
         dest.writeString(releaseDate);
         dest.writeString(backdrop);
     }
+
+
 }

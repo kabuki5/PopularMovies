@@ -101,7 +101,6 @@ public class ReviewsFragment extends BaseFragment implements LoaderManager.Loade
     public void onDataRetrieved(boolean hasReceiveData) {
         if(isAdded() && hasReceiveData) {
             mNoDataView.setVisibility(View.GONE);
-            getLoaderManager().restartLoader(REVIEWS_LOADER, null, this);
         }else if(!hasReceiveData){
             mNoDataView.setVisibility(View.VISIBLE);
         }

@@ -65,15 +65,21 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
         for (Category category : categories) {
             String movieCategory = category.getName();
             if (movieCategory != null) {
-                //      request to API to obtain movies data
-                ContentValues[] movieValues = retrieveMoviesData(movieCategory);
+                //   request to API to obtain movies data
+                ContentValues[] movieValues = DataHelper.retrieveMoviesData(getContext(), movieCategory, 1);
 
-                //      request to API to obtain reviews and trailers from each movie
+                //get category id
+                int categoryId = Utils.getCategoryByName(getContext(), category.getName());
+
+//              delete movies from Movies table and from Movie-Category table
+                context.getContentResolver().delete(MoviesContract.MovieCategoryEntry.buildMovieCategoryData(), null, new String[]{Integer.toString(categoryId)});
 
                 // insert data into database
-                context.getContentResolver().bulkInsert(MoviesContract.MovieEntry.buildMoviesDataWithCategory(movieCategory), movieValues);
+                context.getContentResolver().bulkInsert(MoviesContract.MovieEntry.buildMoviesDataWithCategory(categoryId), movieValues);
             }
         }
+//              delete actors data
+        context.getContentResolver().delete(MoviesContract.ActorsEntry.buildActorsData(), null, null);
         notifySync();
     }
 
@@ -81,7 +87,7 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     private void notifySync() {
         //take control over a notification per day
 
-       if (!Utils.needNotificateUpdate(getContext()))
+        if (!Utils.needNotificateUpdate(getContext()))
             return;
 
         NotificationManager notificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -161,97 +167,6 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
         ContentResolver.requestSync(getSyncAccount(context), context.getString(R.string.content_authority), bundle);
     }
 
-
-    private ContentValues[] retrieveMoviesData(String movieCategory) {
-
-        HttpURLConnection urlConnection = null;
-        ArrayList<Movie> movies = new ArrayList<>();
-        try {
-            //Composing url to request data
-            URL url = new URL(getContext().getString(R.string.tmdb_api_url) + movieCategory + getContext().getString(R.string.tmdb_api_key));
-
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            //Getting string from input stream
-            String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
-
-            //Parse Data
-            movies = DataHelper.parseMoviesJson(getContext(), jsonResult);
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return DataHelper.prepareToInsertMovies(movies);
-
-    }
-
-
-    private ContentValues[] retrieveReviews(int movieId) {
-        ArrayList<Review> reviews = new ArrayList<>();
-        HttpURLConnection urlConnection = null;
-
-        try {
-            //Composing url to request data
-            URL url = new URL(getContext().getString(R.string.tmdb_api_url) + movieId + "/reviews" + getContext().getString(R.string.tmdb_api_key));
-
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            //Getting string from input stream
-            String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
-
-            //Parse Data
-            reviews = DataHelper.parseReviewsJson(movieId, jsonResult);
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return DataHelper.prepareToInsertReviews(reviews);
-
-    }
-
-    private ContentValues[] retrieveTrailers(int movieId) {
-        ArrayList<Trailer> trailers = new ArrayList<>();
-
-        HttpURLConnection urlConnection = null;
-
-        try {
-            //Composing url to request data
-            URL url = new URL(getContext().getString(R.string.tmdb_api_url) + movieId + "/videos" + getContext().getString(R.string.tmdb_api_key));
-
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            //Getting string from input stream
-            String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
-
-            //Parse Data
-            trailers = DataHelper.parseTrailersJson(movieId, jsonResult);
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-
-        return DataHelper.prepareToInsertTrailers(trailers);
-    }
 
     // get all categories and make category array list from cursor
     private ArrayList<Category> getCategories(Context context) {

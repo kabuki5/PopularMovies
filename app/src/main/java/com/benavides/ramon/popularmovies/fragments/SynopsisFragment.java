@@ -190,8 +190,8 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
     // Obtain task callback
     @Override
     public void onDataRetrieved(boolean hasReceiveData) {
-        if (isAdded() && hasReceiveData)
-            getLoaderManager().restartLoader(CAST_LOADER, null, castLoaderCallbacks);
+      //  if (isAdded() && hasReceiveData)
+          //  getLoaderManager().restartLoader(CAST_LOADER, null, castLoaderCallbacks);
     }
 
     @Override

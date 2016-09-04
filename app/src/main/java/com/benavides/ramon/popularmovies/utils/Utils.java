@@ -1,10 +1,15 @@
 package com.benavides.ramon.popularmovies.utils;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.os.Build;
+import android.view.View;
+import android.view.ViewAnimationUtils;
 
 import com.benavides.ramon.popularmovies.R;
 import com.benavides.ramon.popularmovies.data.Movie;
@@ -88,9 +93,11 @@ public class Utils {
 
     //Return just the year
     public static String formatBirthDate(String date) throws ArrayIndexOutOfBoundsException {
+        if (date == null)
+            return null;
         String[] splitted = date.split("-");
         StringBuilder sb = new StringBuilder();
-        if(splitted.length!=3)
+        if (splitted.length != 3)
             return null;
         sb.append(splitted[1]);
         sb.append("-");
@@ -103,7 +110,7 @@ public class Utils {
     public static boolean needNotificateUpdate(Context context) {
         long lastNotif = readLongPreference(context, context.getString(R.string.last_notification_pref));
         long now = System.currentTimeMillis();
-        return  now - lastNotif >= (DAY_MILLIS/2);// 12 hours
+        return now - lastNotif >= (DAY_MILLIS / 2);// 12 hours
     }
 
     public static int getCategoryByName(Context context, String name) {
@@ -121,5 +128,45 @@ public class Utils {
             result = cursor.getInt(0);
         }
         return result;
+    }
+
+    public static void revealAnimateView(final View view, boolean visible) {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            if (visible)
+                view.setVisibility(View.VISIBLE);
+            else
+                view.setVisibility(View.GONE);
+            return;
+        }
+
+// get the center for the clipping circle
+        int cx = view.getWidth() / 2;
+        int cy = view.getHeight() / 2;
+
+// get the final radius for the clipping circle
+        float finalRadius = (float) Math.hypot(cx, cy);
+
+        // create the animator for this view (the start radius is zero)
+
+        Animator anim;
+        if (visible && (view.getVisibility() == View.GONE || view.getVisibility()== View.INVISIBLE)) {
+            anim = ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
+            view.setVisibility(View.VISIBLE);
+            anim.start();
+        } else if (!visible && view.getVisibility() == View.VISIBLE) {
+            anim = ViewAnimationUtils.createCircularReveal(view, cx, cy, finalRadius, 0);
+            // make the view invisible when the animation is done
+            anim.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    view.setVisibility(View.GONE);
+                }
+            });
+            anim.start();
+        }
+
+// make the view visible and start the animation
     }
 }

@@ -14,5 +14,7 @@
     <dimen name="item_actor_roundedimageview_margin">5dp</dimen>
     <dimen name="item_actor_roundedimv_width">60dp</dimen>
     <dimen name="item_actor_height">70dp</dimen>
+    <dimen name="dimen_actor_picture_width">123dp</dimen>
+    <dimen name="dimen_actor_picture_height">185dp</dimen>
 
 </resources>

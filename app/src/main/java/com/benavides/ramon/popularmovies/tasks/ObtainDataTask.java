@@ -37,11 +37,21 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Boolean> {
     public static final int TYPE_TRAILERS = 2;
     public static final int TYPE_CAST = 3;
     public static final int TYPE_ACTOR = 4;
-    private final int mType;
+    public static final int TYPE_MOVIES = 5;
+
+    private int mType;
+    private String categoryName;
 
     public ObtainDataTask(Context context, DataTaskListener callback, int type) {
         this.mContext = context;
         this.mCallback = callback;
+        this.mType = type;
+    }
+
+    public ObtainDataTask(Context context, DataTaskListener callback, int type, String category) {
+        this.mContext = context;
+        this.mCallback = callback;
+        this.categoryName = category;
         this.mType = type;
     }
 
@@ -85,12 +95,20 @@ public class ObtainDataTask extends AsyncTask<Integer, Void, Boolean> {
             case TYPE_ACTOR:
                 Log.d(TAG, "requesting API to get actor info");
                 ContentValues values = retrieveActorInfo(params[0]);
-                if(values!=null){
-                    mContext.getContentResolver().insert(MoviesContract.ActorsEntry.buildActorsData(),values);
+                if (values != null) {
+                    mContext.getContentResolver().insert(MoviesContract.ActorsEntry.buildActorsData(), values);
                     return true;
-                }else
+                } else
                     return false;
-
+            case TYPE_MOVIES:
+                ContentValues[] movies = DataHelper.retrieveMoviesData(mContext, categoryName, params[0]);
+                if (movies != null) {
+                    int categoryId = Utils.getCategoryByName(mContext, categoryName);
+                    mContext.getContentResolver().bulkInsert(MoviesContract.MovieEntry.buildMoviesDataWithCategory(categoryId), movies);
+                    return true;
+                } else {
+                    return false;
+                }
         }
         return false;
     }

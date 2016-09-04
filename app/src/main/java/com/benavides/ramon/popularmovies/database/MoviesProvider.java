@@ -93,12 +93,12 @@ public class MoviesProvider extends ContentProvider {
                 break;
 
             case MOVIES_WITH_CATEGORY:
-                int category = Utils.getCategoryByName(getContext(), MoviesContract.MovieEntry.getCategoryFromUri(uri));
+                int category = MoviesContract.MovieEntry.getCategoryFromUri(uri);
 
 //              subquery to obtain just the movies from the category selected
                 String selectQuery = "SELECT * FROM " + MoviesContract.MovieEntry.TABLE_NAME + " WHERE " + MoviesContract.MovieEntry._ID +
                         " IN ( SELECT " + MoviesContract.MovieCategoryEntry.COLUMN_MOVIE_ID + " FROM " + MoviesContract.MovieCategoryEntry.TABLE_NAME
-                        + " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + category + " );";
+                        + " WHERE " + MoviesContract.MovieCategoryEntry.COLUMN_CATEGORY_ID + " = " + category + ") ORDER BY " + sortOrder + ";";
 
                 cursor = db.rawQuery(selectQuery, null);
                 break;
@@ -261,14 +261,8 @@ public class MoviesProvider extends ContentProvider {
         switch (match) {
             case MOVIES_WITH_CATEGORY:
 //              getting category ID
-                int categoryId = Utils.getCategoryByName(getContext(), MoviesContract.MovieEntry.getCategoryFromUri(uri));
 
-//              delete movies from Movies table and from Movie-Category table
-                delete(MoviesContract.MovieCategoryEntry.buildMovieCategoryData(), null, new String[]{Integer.toString(categoryId)});
-
-//              delete actors data
-                delete(MoviesContract.ActorsEntry.buildActorsData(),null,null);
-
+                int categoryId = MoviesContract.MovieEntry.getCategoryFromUri(uri);
                 db.beginTransaction();
 //              inserting movies into Movies table and Movie-Category relation
                 try {

@@ -16,6 +16,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -24,13 +28,43 @@ import java.util.ArrayList;
 public class DataHelper {
 
 
+    public static ContentValues[] retrieveMoviesData(Context context, String movieCategory, int page) {
+
+        HttpURLConnection urlConnection = null;
+        ArrayList<Movie> movies = new ArrayList<>();
+        try {
+            //Composing url to request data
+            URL url = new URL(context.getString(R.string.tmdb_api_url) + movieCategory + context.getString(R.string.tmdb_api_key) + "&page=" + page);
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            //Getting string from input stream
+            String jsonResult = Utils.readInputStream(urlConnection.getInputStream());
+
+            //Parse Data
+            movies = DataHelper.parseMoviesJson(context, jsonResult, page);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return DataHelper.prepareToInsertMovies(movies);
+
+    }
+
     /**
      * Method to parse the movie data base json response
      *
      * @param json String with json content
      * @return
      */
-    public static ArrayList<Movie> parseMoviesJson(Context context, String json) throws JSONException {
+    public static ArrayList<Movie> parseMoviesJson(Context context, String json, int page) throws JSONException {
 
         ArrayList<Movie> result = new ArrayList<>();
 
@@ -46,6 +80,7 @@ public class DataHelper {
             movie.setRating(movieObject.getDouble("vote_average"));
             movie.setReleaseDate(movieObject.getString("release_date"));
             movie.setSynopsis(movieObject.getString("overview"));
+            movie.setOrder((page - 1) * 20 + (i + 1));
             result.add(movie);
         }
         return result;
@@ -125,18 +160,6 @@ public class DataHelper {
         return actor;
     }
 
-    public static Movie getMovieFromCursor(Cursor cursor) {
-        Movie movie = new Movie();
-        movie.setId(cursor.getInt(MoviesContract.MovieEntry.MOVIES_COLUMN_ID));
-        movie.setOriginalTitle(cursor.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_TITLE));
-        movie.setSynopsis(cursor.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_SYNOPSIS));
-        movie.setPoster(cursor.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_POSTER));
-        movie.setRating(cursor.getDouble(MoviesContract.MovieEntry.MOVIES_COLUMN_RATING));
-        movie.setReleaseDate(cursor.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_RELEASE_DATE));
-        movie.setBackdrop(cursor.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_BACKDROP));
-        return movie;
-    }
-
     public static ContentValues[] prepareToInsertMovies(ArrayList<Movie> movies) {
         ContentValues[] contentValues = new ContentValues[movies.size()];
         for (int i = 0; i < movies.size(); i++) {
@@ -151,7 +174,7 @@ public class DataHelper {
             values.put(MoviesContract.MovieEntry.COLUMN_RATING, movie.getRating());
             values.put(MoviesContract.MovieEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
             values.put(MoviesContract.MovieEntry.COLUMN_BACKDROP, movie.getBackdrop());
-
+            values.put(MoviesContract.MovieEntry.COLUMN_ORDER, movie.getOrder());
             contentValues[i] = values;
         }
         return contentValues;
@@ -210,8 +233,8 @@ public class DataHelper {
         return contentValues;
     }
 
-    public static ContentValues prepareToInsertActor(Actor actor){
-        if(actor==null)
+    public static ContentValues prepareToInsertActor(Actor actor) {
+        if (actor == null)
             return null;
 
         ContentValues values = new ContentValues();

@@ -107,7 +107,6 @@ public class TrailersFragment extends BaseFragment implements LoaderManager.Load
     public void onDataRetrieved(boolean hasReceiveData) {
         if (isAdded() && hasReceiveData) {
             mNoDataView.setVisibility(View.GONE);
-            getLoaderManager().restartLoader(TRAILERS_LOADER, null, this);
         } else if (!hasReceiveData) {
             mNoDataView.setVisibility(View.VISIBLE);
         }
