@@ -21,4 +21,8 @@
     <dimen name="item_actor_height">70dp</dimen>
     <dimen name="dimen_actor_picture_width">123dp</dimen>
     <dimen name="dimen_actor_picture_height">185dp</dimen>
+    <dimen name="dimen_about_image_width">100dp</dimen>
+    <dimen name="dimen_about_image_height">100dp</dimen>
+    <dimen name="dimen_about_button_width">250dp</dimen>
+    <dimen name="dimen_about_button_height">55dp</dimen>
 </resources>

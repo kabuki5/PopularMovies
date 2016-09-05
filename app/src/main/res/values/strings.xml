@@ -32,4 +32,6 @@
     <string name="as">"As "</string>
     <string name="actor_id_param">actor_id_param</string>
     <string name="no_data_found">No data found</string>
+    <string name="about">About</string>
+    <string name="version">"Version "</string>
 </resources>

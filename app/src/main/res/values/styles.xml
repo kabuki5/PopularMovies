@@ -44,4 +44,13 @@
         <item name="colorControlActivated">@color/gold</item>
     </style>
 
+    <style name="AppTheme.AboutTitle">
+        <item name="android:textSize">25dp</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="AppTheme.AboutButtonStyle">
+        <item name="android:background">@drawable/movie_item_selector</item>
+    </style>
+
 </resources>
