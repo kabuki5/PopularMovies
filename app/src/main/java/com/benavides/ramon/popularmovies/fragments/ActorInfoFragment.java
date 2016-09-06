@@ -37,9 +37,11 @@ import butterknife.ButterKnife;
 public class ActorInfoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, DataTaskListener {
 
     private static final String ACTOR_PARAM = "actor_id";
+    private static final String TWO_PANE_PARAM = "two_pane";
     private static final int LOADER_ACTOR_INFO = 8;
 
     private int mActorId;
+    private boolean mTwoPane;
 
     @BindView(R.id.main_container)
     RelativeLayout mInfoContainer;
@@ -60,10 +62,11 @@ public class ActorInfoFragment extends Fragment implements LoaderManager.LoaderC
     @BindView(R.id.deathday_title)
     TextView mDeathdayTitle;
 
-    public static ActorInfoFragment newInstance(int actorId) {
+    public static ActorInfoFragment newInstance(int actorId, boolean twoPane) {
 
         Bundle args = new Bundle();
         args.putInt(ACTOR_PARAM, actorId);
+        args.putBoolean(TWO_PANE_PARAM, twoPane);
         ActorInfoFragment fragment = new ActorInfoFragment();
         fragment.setArguments(args);
         return fragment;
@@ -94,6 +97,7 @@ public class ActorInfoFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mTwoPane = getArguments().getBoolean(TWO_PANE_PARAM);
         mActorId = getArguments().getInt(ACTOR_PARAM);
     }
 
@@ -144,15 +148,13 @@ public class ActorInfoFragment extends Fragment implements LoaderManager.LoaderC
     // show info
     private void populateData(Cursor data) {
         data.moveToFirst();
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_NAME));
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+
+        if (!mTwoPane)
+            setupActionBar(data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_NAME));
 
         String name = data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_NAME);
-        String birthday = Utils.formatBirthDate(data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_BIRTHDAY));
-        String deathDay =  Utils.formatBirthDate(data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_DEATHDAY));
+        String birthday = data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_BIRTHDAY);
+        String deathDay = data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_DEATHDAY);
         String place = data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_PLACE);
         String biography = data.getString(MoviesContract.ActorsEntry.ACTORS_COLUMN_BIOGRAPHY);
         String noData = getString(R.string.no_data_found);
@@ -182,6 +184,14 @@ public class ActorInfoFragment extends Fragment implements LoaderManager.LoaderC
             biography = noData;
         mBiography.setText(biography);
 
+    }
+
+    private void setupActionBar(String name) {
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(name);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
     }
 
 

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -49,6 +50,9 @@ public class MovieDetailContainerFragment extends Fragment implements View.OnCli
 
     private boolean isFavorite;
 
+    @BindView(R.id.coordinator_layout)
+    CoordinatorLayout mCoordinatorLayout;
+
     @BindView(R.id.collapsing_toolbar_layout)
     CollapsingToolbarLayout collapsingToolbarLayout;
     @BindView(R.id.backdrop)
@@ -70,6 +74,7 @@ public class MovieDetailContainerFragment extends Fragment implements View.OnCli
     private String mBackdrop;
     private Fragment[] mFragments;
     private int movieID;
+    private SectionsPagerAdapter mAdapter;
 
 
     public static MovieDetailContainerFragment newInstance(int movie) {
@@ -124,7 +129,7 @@ public class MovieDetailContainerFragment extends Fragment implements View.OnCli
                 ((MovieDetailActivity) getActivity()).setSupportActionBar(toolbar);
             actionBar = ((MovieDetailActivity) getActivity()).getSupportActionBar();
             actionBar.setDisplayHomeAsUpEnabled(true);
-        } else {
+        } else {// two pane mode
             ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
             if (actionBar == null)
                 ((MovieDetailActivity) getActivity()).setSupportActionBar(toolbar);
@@ -132,6 +137,8 @@ public class MovieDetailContainerFragment extends Fragment implements View.OnCli
             actionBar.setDisplayHomeAsUpEnabled(false);
 
         }
+
+
 
         //        Managing toolbar back button behavior
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -142,7 +149,7 @@ public class MovieDetailContainerFragment extends Fragment implements View.OnCli
         });
 
         //     Setting up tab viewpager
-        SectionsPagerAdapter mAdapter = new SectionsPagerAdapter(getActivity().getSupportFragmentManager(), initFragments(movieID));
+        mAdapter = new SectionsPagerAdapter(getActivity().getSupportFragmentManager(), initFragments(movieID));
 
         mViewpager.setAdapter(mAdapter);
 
@@ -246,4 +253,9 @@ public class MovieDetailContainerFragment extends Fragment implements View.OnCli
             resCursor.close();
     }
 
+    public void updateFragment(int movieID){
+        this.movieID = movieID;
+        mAdapter = new SectionsPagerAdapter(getActivity().getSupportFragmentManager(),initFragments(movieID));
+        mViewpager.setAdapter(mAdapter);
+    }
 }

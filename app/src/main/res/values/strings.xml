@@ -34,4 +34,5 @@
     <string name="no_data_found">No data found</string>
     <string name="about">About</string>
     <string name="version">"Version "</string>
+    <string name="two_pane_param">two_pane</string>
 </resources>

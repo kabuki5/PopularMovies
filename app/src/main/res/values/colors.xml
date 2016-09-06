@@ -6,6 +6,9 @@
     <color name="greyCard">#dfdfdf</color>
     <color name="gold">#8e861f</color>
     <color name="grey">#8c8a8a</color>
+    <color name="dark_grey">#6e6e6e</color>
+    <color name="soft_blue">#8bd8ed</color>
+    <color name="grey_blue">#5a7386</color>
 
     <color name="colorPrimaryAlpha">#e01b1b1d</color>
 

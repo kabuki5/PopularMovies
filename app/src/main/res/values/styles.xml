@@ -45,7 +45,7 @@
     </style>
 
     <style name="AppTheme.AboutTitle">
-        <item name="android:textSize">25dp</item>
+        <item name="android:textSize">@dimen/dimen_about_app_title</item>
         <item name="android:textColor">@android:color/black</item>
     </style>
 

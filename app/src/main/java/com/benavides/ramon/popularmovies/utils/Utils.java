@@ -91,22 +91,6 @@ public class Utils {
         return splitted[0];
     }
 
-    //Return just the year
-    public static String formatBirthDate(String date) throws ArrayIndexOutOfBoundsException {
-        if (date == null)
-            return null;
-        String[] splitted = date.split("-");
-        StringBuilder sb = new StringBuilder();
-        if (splitted.length != 3)
-            return null;
-        sb.append(splitted[1]);
-        sb.append("-");
-        sb.append(splitted[2]);
-        sb.append("-");
-        sb.append(splitted[0]);
-        return sb.toString();
-    }
-
     public static boolean needNotificateUpdate(Context context) {
         long lastNotif = readLongPreference(context, context.getString(R.string.last_notification_pref));
         long now = System.currentTimeMillis();

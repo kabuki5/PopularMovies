@@ -2,7 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/greyCard">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -38,7 +39,9 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
-                    android:layout_margin="@dimen/dimen_cardview_margin"
+                    android:layout_marginTop="@dimen/dimen_cardview_margin"
+                    android:layout_marginRight="@dimen/dimen_cardview_margin"
+                    android:layout_alignBottom="@+id/picture_card"
                     android:layout_toRightOf="@+id/picture_card">
 
                     <LinearLayout
@@ -50,55 +53,55 @@
                         <TextView
                             style="@style/AppTheme.DetailSectionTitle"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:text="Name" />
 
                         <TextView
                             android:id="@+id/name"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center_vertical" />
 
                         <TextView
                             style="@style/AppTheme.DetailSectionTitle"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:text="Birthday" />
 
                         <TextView
                             android:id="@+id/birthday"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center_vertical" />
 
                         <TextView
-                            android:visibility="gone"
                             android:id="@+id/deathday_title"
                             style="@style/AppTheme.DetailSectionTitle"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:text="Death day" />
+                            android:layout_height="wrap_content"
+                            android:text="Death day"
+                            android:visibility="gone" />
 
                         <TextView
-                            android:visibility="gone"
                             android:id="@+id/deathday"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:gravity="center_vertical" />
+                            android:gravity="center_vertical"
+                            android:visibility="gone" />
 
                         <TextView
                             style="@style/AppTheme.DetailSectionTitle"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:text="Place of birth" />
 
                         <TextView
                             android:id="@+id/place"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center_vertical" />
 

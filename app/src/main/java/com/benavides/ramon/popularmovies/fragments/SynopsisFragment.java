@@ -10,23 +10,19 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridLayout;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.benavides.ramon.popularmovies.ActorInfoActivity;
+import com.benavides.ramon.popularmovies.MainActivity;
 import com.benavides.ramon.popularmovies.R;
-import com.benavides.ramon.popularmovies.adapters.CastCursorAdapter;
 import com.benavides.ramon.popularmovies.cviews.RoundedImageView;
-import com.benavides.ramon.popularmovies.data.CastActor;
 import com.benavides.ramon.popularmovies.database.MoviesContract;
+import com.benavides.ramon.popularmovies.interfaces.ActorSelectorListener;
 import com.benavides.ramon.popularmovies.interfaces.DataTaskListener;
 import com.benavides.ramon.popularmovies.interfaces.DetailContentChangeListener;
 import com.benavides.ramon.popularmovies.tasks.ObtainDataTask;
@@ -42,7 +38,8 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
     private static final int CAST_LOADER = 7;
     private static final int MAX_ACTORS = 11;
 
-    private DetailContentChangeListener mCallback;
+    private DetailContentChangeListener mContentListener;
+    private ActorSelectorListener mActorSelectorListener;
 
     @BindView(R.id.synopsis_tev)
     TextView synopsisTev;
@@ -91,7 +88,8 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mCallback = (DetailContentChangeListener) context;
+        mContentListener = (DetailContentChangeListener) context;
+        mActorSelectorListener = (ActorSelectorListener) context;
     }
 
     //Populate content
@@ -150,8 +148,8 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (data != null && data.getCount() > 0) {
             if (data.moveToFirst()) {
-                if (mCallback != null)
-                    mCallback.onContentChanged(data.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_TITLE),
+                if (mContentListener != null)
+                    mContentListener.onContentChanged(data.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_TITLE),
                             data.getString(MoviesContract.MovieEntry.MOVIES_COLUMN_BACKDROP));
                 populateSynopsis(data);
             }
@@ -190,15 +188,14 @@ public class SynopsisFragment extends BaseFragment implements LoaderManager.Load
     // Obtain task callback
     @Override
     public void onDataRetrieved(boolean hasReceiveData) {
-      //  if (isAdded() && hasReceiveData)
-          //  getLoaderManager().restartLoader(CAST_LOADER, null, castLoaderCallbacks);
+        //  if (isAdded() && hasReceiveData)
+        //  getLoaderManager().restartLoader(CAST_LOADER, null, castLoaderCallbacks);
     }
 
     @Override
     public void onClick(View v) {
         int actorId = (int) v.getTag();
-        Intent actorInfoIntent = new Intent(getActivity(), ActorInfoActivity.class);
-        actorInfoIntent.putExtra(getString(R.string.actor_id_param),actorId);
-        startActivity(actorInfoIntent);
+        if (mActorSelectorListener != null)
+            mActorSelectorListener.onActorSelected(actorId);
     }
 }
