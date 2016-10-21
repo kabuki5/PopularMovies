@@ -48,6 +48,7 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
 
     private static final int NOTIFICATION_ID = 100;
+    public static final String ACTION_UPDATED = "com.benavides.ramon.popularmovies.ACTION.SYNC_UPDATED";
 
     public PopularmoviesSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -80,7 +81,13 @@ public class PopularmoviesSyncAdapter extends AbstractThreadedSyncAdapter {
         }
 //              delete actors data
         context.getContentResolver().delete(MoviesContract.ActorsEntry.buildActorsData(), null, null);
+        syncWidgets();
         notifySync();
+    }
+
+    private void syncWidgets() {
+        Intent updateIntent = new Intent(ACTION_UPDATED).setPackage(getContext().getPackageName());
+        getContext().sendBroadcast(updateIntent);
     }
 
 

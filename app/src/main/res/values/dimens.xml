@@ -26,5 +26,7 @@
     <dimen name="dimen_about_button_width">250dp</dimen>
     <dimen name="dimen_about_button_height">55dp</dimen>
     <dimen name="dimen_about_app_title">25sp</dimen>
+    <dimen name="widget_default_height">180dp</dimen>
+    <dimen name="widget_default_width">110dp</dimen>
 
 </resources>

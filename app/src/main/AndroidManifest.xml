@@ -55,6 +55,24 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
+
+        <receiver
+            android:name=".MoviesWidgetProvider"
+            android:label="Popular movies widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.benavides.ramon.popularmovies.ACTION.SYNC_UPDATED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/movies_widget" />
+        </receiver>
+
+        <service android:name=".services.WidgetIntentService">
+            <intent-filter>
+                <action android:name="com.benavides.ramon.popularmovies.ACTION.SYNC_UPDATED"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
